@@ -1,20 +1,7 @@
 spring:
   application:
     name: otm
-#  datasource:
-#    dynamic:
-#      primary: oracle
-#      datasource:
-#        mysql:
-#          driver-class-name: com.mysql.cj.jdbc.Driver
-#          username: root
-#          password: hz310012
-#          url: jdbc:mysql://172.16.1.246:3306/db_center_form?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowMultiQueries=true
-#        oracle:
-#          driver-class-name: oracle.jdbc.OracleDriver
-#          username: biguser
-#          password: hz310012
-#          url: jdbc:oracle:thin:@172.16.67.229:1521/bigpdb.localdomain
+
   mvc:
     dispatch-options-request: true
     pathmatch:
