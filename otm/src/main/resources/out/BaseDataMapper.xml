@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.hzsun.zbp.tch.staff.dao.BaseDataDAO"> 
+    <!--数据列表三元组映射--> 
+    <resultMap id="SimpleTuple" type="com.hzsun.zbp.tch.staff.model.dto.SimpleTupleDTO"> 
+        <result column="key" jdbcType="VARCHAR" property="key"></result> 
+        <result column="item" jdbcType="VARCHAR" property="item"></result> 
+        <result column="value" jdbcType="VARCHAR" property="value"></result> 
+        <result column="total" jdbcType="VARCHAR" property="total"></result> 
+    </resultMap> 
+ 
+    <!--事业编教师年龄统计映射--> 
+    <resultMap id="AgeOrganDTO" type="com.hzsun.zbp.tch.staff.model.dto.AgeOrganDTO"> 
+        <!-- 职称级别名称 --> 
+        <result column="STAFF_TITLE_RANK_NAME" jdbcType="VARCHAR" property="staffTitleRankName"></result> 
+        <!-- 最高年龄 --> 
+        <result column="HIGHEST_AGE" jdbcType="VARCHAR" property="highestAge"></result> 
+        <!-- 最低年龄 --> 
+        <result column="LOWEST_AGE" jdbcType="VARCHAR" property="lowestAge"></result> 
+        <!-- 平均年龄 --> 
+        <result column="AVG_AGE" jdbcType="VARCHAR" property="avgAge"></result> 
+    </resultMap> 
+ 
+<!--map--> 
+    <!--获取数据生成年份--> 
+    <sql id="yearSql"> 
+        (select (case cc 
+            when 0 
+                then (select data_date 
+                      from ${tableName} 
+                      where ltrim(DATE_FORMAT(to_number('${year}', '9999') - 1, '9999'))  = DATE_FORMAT(data_date, 'yyyy') 
+                      order by data_date desc 
+                      limit 1 offset 0) 
+                else (select data_date 
+                      from ${tableName} 
+                      where '${year}' = DATE_FORMAT(data_date, 'yyyy') 
+                      order by data_date desc 
+                      limit 1 offset 0) end) as year 
+        from (select count(*) cc 
+                 from ${tableName} 
+                 where '${year}' = DATE_FORMAT(data_date, 'yyyy') 
+             ) t) 
+    </sql> 
+ 
+    <!--数据概览--> 
+    <select id="listOverview" resultMap="SimpleTuple"> 
+        select distinct staff_type_name as key,sum(staff_cnt) over(partition by staff_type_name) as value 
+        from ${tableName} 
+        where data_date =  <include refid="yearSql"/> 
+        and staff_type_code in ('10','20') 
+        union all 
+        select distinct staff_class_name as key,sum(staff_cnt) over(partition by staff_class_name) as value 
+        from ${tableName} 
+        where data_date =  <include refid="yearSql"/> 
+        and staff_class_code in ('11','12','13','21','22') 
+        union all 
+        select distinct '双肩挑' as key,sum(staff_cnt) over() as value 
+        from ${tableName} 
+        where data_date =  <include refid="yearSql"/> 
+        and staff_class_code in ('12','13') 
+        union all 
+        select distinct pdoc_property_name as key,count(pdoc_property_name) over() as value 
+        from ${tableNameA} 
+        where pdoc_property_code = '2' 
+    </select> 
+ 
+    <!--岗位分布--> 
+    <select id="getStationDistribution" resultMap="SimpleTuple"> 
+        select distinct work_content_type_name as key, sum(staff_cnt) over(partition by work_content_type_name) as value 
+        from ${tableName} 
+        where data_date = <include refid="yearSql"/> 
+        and work_content_type_name is not null 
+    </select> 
+ 
+    <!--岗位占比--> 
+    <select id="getStationProportion" resultMap="SimpleTuple"> 
+        select key,value,round(100 * round(value/total,5),2) as item 
+        from ( 
+        select distinct work_content_type_name as key, sum(staff_cnt) over(partition by work_content_type_name) as value,sum(staff_cnt) over() total 
+        from ${tableName} 
+        where data_date = <include refid="yearSql"/> 
+        and work_content_type_name is not null 
+        ) t 
+    </select> 
+ 
+    <!--岗位分布-事业编教师岗位分布图--> 
+    <select id="getStationProportionChart" resultMap="SimpleTuple"> 
+        select 
+        work_content_type_name as key,staff_title_rank_name as item,sum(staff_cnt) over(partition by work_content_type_name,staff_title_rank_name) as total 
+        from ${tableName} 
+        where work_content_type_name is not null 
+        and staff_title_rank_name != '' 
+        and data_date = <include refid="yearSql"/> 
+        order by work_content_type_name,staff_title_rank_code 
+    </select> 
+ 
+    <!--学历学位结构--> 
+    <select id="getEduOverview" resultMap="SimpleTuple"> 
+        select distinct top_edu_bg_name as key, sum(staff_cnt) over(partition by top_edu_bg_name) as value 
+        from ${tableName} 
+        where data_date = <include refid="yearSql"/> 
+        and top_edu_bg_name is not null 
+    </select> 
+ 
+    <!--事业编教师学历占比--> 
+    <select id="chartOrganEduProportion" resultMap="SimpleTuple"> 
+        select key, round(100 * round(value/total,5),2) as item, value 
+        from ( 
+        select distinct top_edu_bg_name as key, sum(staff_cnt) over(partition by top_edu_bg_name) as value,sum(staff_cnt) over() as total 
+        from ${tableName} 
+        where data_date = <include refid="yearSql"/> 
+        and top_edu_bg_name is not null 
+        ) t 
+    </select> 
+ 
+    <!--事业编教师学历分布--> 
+    <select id="chartOrganEduDist" resultMap="SimpleTuple"> 
+        select top_edu_bg_name as key, staff_title_rank_name as item, sum(staff_cnt) as value 
+        from ${tableName} 
+        where data_date = <include refid="yearSql"/> 
+        and top_edu_bg_name is not null 
+        and staff_title_rank_name is not null 
+        and top_edu_bg_name != '' 
+        and staff_title_rank_name != '' 
+        group by top_edu_bg_code,top_edu_bg_name,staff_title_rank_code,staff_title_rank_name 
+        order by top_edu_bg_code,staff_title_rank_code 
+    </select> 
+ 
+    <!--年龄结构--> 
+    <select id="getAgeOverview" resultMap="SimpleTuple"> 
+        select key,value, round(100 * round(value/total,5),2) as item 
+        from ( 
+        select distinct age_section as key , sum(staff_cnt) over(partition by age_section) as value, sum(staff_cnt) over() as total 
+        from ${tableName} 
+        where data_date = <include refid="yearSql"/> 
+        ) t 
+        order by key 
+    </select> 
+ 
+    <!--获取事业编教师年龄统计--> 
+    <select id="chartAgeOrgan" resultMap="AgeOrganDTO"> 
+        select staff_title_rank_name,highest_age,lowest_age,avg_age 
+        from ${tableName} 
+        where data_date = <include refid="yearSql"/> 
+        and staff_title_rank_name is not null 
+        and staff_title_rank_name != '' 
+    </select> 
+ 
+    <!--事业编教师年龄分布图-职称--> 
+    <select id="chartAgeOrganTitle" resultMap="SimpleTuple"> 
+        select key,item,staff_cnt as value 
+        from ( 
+        select age_section as key, staff_title_rank_name as item , sum(staff_cnt) as staff_cnt,staff_title_rank_code rank 
+        from ${tableName} 
+        where data_date = <include refid="yearSql"/> 
+        and staff_title_rank_name is not null 
+        and age_section is not null 
+        and staff_title_rank_name != '' 
+        group by age_section,staff_title_rank_name,staff_title_rank_code 
+        ) t 
+        order by key desc, rank asc 
+    </select> 
+ 
+    <!--事业编教师年龄分布图-学历学位--> 
+    <select id="chartAgeOrganEdu" resultMap="SimpleTuple"> 
+        select key,item, staff_cnt as value 
+        from ( 
+        select age_section as key, top_edu_bg_name as item , sum(staff_cnt) as staff_cnt,top_edu_bg_code rank 
+        from ${tableName} 
+        where data_date = <include refid="yearSql"/> 
+        and top_edu_bg_name is not null 
+        and age_section is not null 
+        and staff_title_rank_name != '' 
+        group by age_section,top_edu_bg_name,top_edu_bg_code 
+        ) t 
+        order by key,rank asc 
+    </select> 
+ 
+    <!--职称数据概览--> 
+    <select id="getTitleOverview" resultMap="SimpleTuple"> 
+        select distinct staff_title_rank_name as key , sum(staff_cnt) over(partition by staff_title_rank_name) as value, sum(staff_cnt) over() as total 
+        from ${tableName} 
+        where data_date = <include refid="yearSql"/> 
+        and work_class_code='11' 
+        and staff_title_rank_name is not null 
+    </select> 
+ 
+    <!--学校职称统计图（比例）--> 
+    <select id="chartTitle" resultMap="SimpleTuple"> 
+        select coalesce(nullif(key, ''), '其他') as key, value, round(100 * round(value / total, 5), 2) as item 
+        from (select distinct staff_title_rank_name                                    as key, 
+        sum(staff_cnt) over (partition by staff_title_rank_name) as value, 
+        sum(staff_cnt) over ()                                   as total, 
+        staff_title_rank_code                                    as rank 
+        from ${tableName} 
+        where data_date = <include refid="yearSql"/> 
+        and work_class_code='11' 
+        and staff_title_rank_name is not null 
+        and staff_title_rank_name != '' 
+        ) t 
+        order by rank desc 
+    </select> 
+ 
+    <!--高级职称数据概览--> 
+    <select id="chartHighTitle" resultMap="SimpleTuple"> 
+        select '高级职称' as key,sum(item) as item ,sum(value)as value 
+        from ( 
+        select item, round(100 * round(item/total,5),2) as value 
+        from ( 
+        select distinct staff_title_rank_name as key,sum(staff_cnt) over(partition by staff_title_rank_name) as item, 
+        sum(staff_cnt) over() as total,staff_title_rank_code as rank 
+        from ${tableName} 
+        where data_date = <include refid="yearSql"/> 
+        and staff_title_rank_name is not null 
+        and work_class_code='11' 
+        ) t 
+        where key in ('正高','副高') 
+        order by rank asc 
+        )t 
+        union 
+        select key,item, round(100 * round(item/total,5),2) as value 
+        from ( 
+        select distinct staff_title_rank_name as key,sum(staff_cnt) over(partition by staff_title_rank_name) as item,sum(staff_cnt) over() as total,staff_title_rank_code as rank 
+        from ${tableName} 
+        where data_date = <include refid="yearSql"/> 
+        and staff_title_rank_name is not null 
+        and work_class_code='11' 
+        ) t 
+        where key in ('正高','副高') 
+    </select> 
+ 
+    <!--学缘结构--> 
+    <select id="getEduFate" resultMap="SimpleTuple"> 
+        select distinct '外校学历学位经历' as KEY, 
+        sum(acad_staff_cnt) over() as item, 
+        total_staff_cnt as total, 
+        round(100 * round(sum(acad_staff_cnt) over () / total_staff_cnt, 5), 2) as value 
+        from 
+        ( 
+        SELECT DISTINCT acad_stru_code, 
+        acad_stru_name, 
+        SUM(staff_cnt) OVER ( PARTITION BY acad_stru_code ) acad_staff_cnt, 
+        (select SUM(staff_cnt) from ${tableName} where data_date = <include refid="yearSql"/> ) total_staff_cnt 
+        FROM ${tableName} 
+        WHERE data_date = <include refid="yearSql"/> 
+        AND acad_stru_code in ('20', '30', '40') 
+        ) tmp1 
+        where tmp1.acad_stru_code in ('20', '30', '40') 
+        union all 
+        select distinct '国(境)外学历学位经历' as KEY, 
+        sum(acad_staff_cnt) over() as item, 
+        total_staff_cnt as total, 
+        round(100 * round(sum(acad_staff_cnt) over () / total_staff_cnt, 5), 2) as value 
+        from 
+        ( 
+        SELECT DISTINCT acad_stru_code, 
+        acad_stru_name, 
+        SUM(staff_cnt) OVER ( PARTITION BY acad_stru_code ) acad_staff_cnt, 
+        (select SUM(staff_cnt) from ${tableName} where data_date = <include refid="yearSql"/>) total_staff_cnt 
+        FROM ${tableName} 
+        WHERE data_date = <include refid="yearSql"/> 
+        AND acad_stru_code in ('20', '30', '40') 
+        ) tmp2 
+        where tmp2.acad_stru_code in ('30', '40') 
+    </select> 
+ 
+    <!--具有海外经历教师学院分布图--> 
+    <select id="chartAbroadEdu" resultMap="SimpleTuple"> 
+        select key,item,round(100 * round(item/total,5),2) as value, total 
+        from ( 
+        select unit_name as key ,sum(overseas_staff_cnt) as item,sum(staff_cnt) as total 
+        from ${tableName} 
+        where data_date = <include refid="yearSql"/> 
+        group by unit_name 
+        ) t 
+        order by item asc,total asc 
+    </select> 
+ 
+    <!--国际化教师队伍--> 
+    <select id="listI18nTch" resultMap="SimpleTuple"> 
+        select '具有三个月及以上国（境）外学习经历的人' as key, 
+        sum(overseas_staff_cnt) as value, 
+        round(100 * round(sum(overseas_staff_cnt) / sum(staff_cnt), 5), 2) as item 
+        from ${tableName} 
+        where data_date = <include refid="yearSql"/> 
+        union all 
+        select '具有三个月及以上国（境）外研修经历的人' as key, 
+        sum(overseas_exp_cnt) as value, 
+        round(100 * round(sum(overseas_exp_cnt) / sum(staff_cnt), 5), 2) as item 
+        from ${tableName} 
+        where data_date = <include refid="yearSql"/> 
+    </select> 
+ 
+    <!--岗位分布-数据概览--> 
+    <select id="getStationDistributionDataOverview" 
+            resultType="com.hzsun.zbp.tch.staff.model.dto.StationDistDTO"> 
+        select work_content_type_name as workContentTypeName,sum(staff_cnt) as staffCnt from ${tableName} 
+        where work_content_type_name is not null 
+        <if test="year !=null and year !=''"> 
+            and data_date =<include refid="yearSql"/> 
+        </if> 
+        group by work_content_type_name 
+    </select> 
+ 
+    <!--sql--> 
+    <!--获取当前年份--> 
+    <select id="getYear" resultType="java.lang.String"> 
+        select DATE_FORMAT((SELECT now()),'yyyy') 
+    </select> 
+</mapper> 

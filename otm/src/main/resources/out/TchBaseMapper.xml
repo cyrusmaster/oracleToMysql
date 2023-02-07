@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.hzsun.bigdata.teacher.dao.TchBaseDao"> 
+ 
+    <!--通过表名前缀查询最新最新日期的表名--> 
+    <select id="getLastTableByPrefix" resultType="java.lang.String"> 
+        select relname from pg_stat_user_tables 
+        where  relname like concat(#{tableName}, '%') 
+        order by relname desc 
+        offset 0 limit 1 
+    </select> 
+ 
+    <!--教职工总览信息--> 
+    <select id="getTchSummaryInfo" resultType="com.hzsun.bigdata.teacher.model.dto.TchSummaryInfoDTO"> 
+       select 
+        (select sum(staff_num) from ${tableName}) as jszrs, 
+        (select sum(staff_num) from ${tableName} where  status_code = '11') as zzzrs, 
+        (select sum(staff_num) from ${tableName} where  status_code = '11' and staff_title_rank_code = '1') as zgjjs, 
+        (select sum(staff_num) from ${tableName} where  status_code = '11' and work_name = '专任教师') as zrjs, 
+        (select sum(staff_num) from ${tableName} where  status_code = '22') as ltx 
+    </select> 
+ 
+    <!--教师当前状态分布统计图--> 
+    <select id="getStaffCurrentStat" resultType="com.hzsun.bigdata.teacher.model.dto.DrawDTO"> 
+        select 
+            status_name as key, 
+            sum(staff_num) as value, 
+            '人数' as item 
+        from ${tableName} 
+        group by status_name 
+        order by sum(staff_num) desc 
+    </select> 
+ 
+    <!--单个教职工基本信息查询--> 
+    <select id="getTchBaseInfo" resultType="com.hzsun.bigdata.teacher.model.dto.TchBaseSimpleInfoDTO"> 
+        SELECT 
+        staff_no as staffNo, 
+        staff_name as staffName, 
+        unit_no as unitNo, 
+        unit_name as unitName, 
+        sex_code as sexCode, 
+        sex_name as sexName, 
+        staff_age as staffAge, 
+        bd_day as bdDay, 
+        native_place as nativePlace, 
+        nation_code as nationCode, 
+        nation_name as nationName, 
+        ctry_code as ctryCode, 
+        ctry_name as ctryName, 
+        card_type_code as cardTypeCode, 
+        card_type_name as cardTypeName, 
+        card_no as cardNo, 
+        marital_no as maritalNo, 
+        marital_stat as maritalStat, 
+        pol_code as polCode, 
+        pol_type as polType, 
+        status_code as statusCode, 
+        status_name as statusName 
+        FROM ${tableName} 
+        <if test="staffNo != null and staffNo != ''"> 
+            where staff_no = #{staffNo} 
+        </if> 
+    </select> 
+ 
+    <!--单个教职工入职信息查询--> 
+    <select id="getTchEntryInfo" resultType="com.hzsun.bigdata.teacher.model.dto.TchEntryInfoDTO"> 
+        select 
+        staff_no as staffNo, 
+        staff_name as staffName, 
+        unit_no as unitNo, 
+        unit_name as unitName, 
+        sch_check_in_day as schCheckInDay, 
+        status_code as statusCode, 
+        status_name as statusName, 
+        estb_class_code as estbClassCode, 
+        estb_class_name as estbClassName, 
+        staff_class_code as staffClassCode, 
+        staff_class_name as staffClassName, 
+        acad_stru_code as acadStruCode, 
+        acad_stru_name as acadStruName, 
+        subj_class_code as subjClassCode, 
+        subj_class_name as subjClassName, 
+        tch_status_name as tchStatusName 
+        from ${tableName} 
+        <if test="staffNo != null and staffNo != ''"> 
+            where staff_no = #{staffNo} 
+        </if> 
+    </select> 
+ 
+    <!--单个教职工个人履历查询--> 
+    <select id="getTchRecordInfo" resultType="com.hzsun.bigdata.teacher.model.dto.TchRecordInfoDTO"> 
+        SELECT 
+        staff_no as staffNo, 
+        staff_name as staffName, 
+        top_edu_bg_code as topEduBgCode, 
+        top_edu_bg_name as topEduBgName, 
+        highest_degree_code as highestDegreeCode, 
+        highest_degree_name as highestDegreeName, 
+        work_name as workName, 
+        mana_work_rank_code as manaWorkRankCode, 
+        mana_work_rank_name as manaWorkRankName, 
+        salary_work_rank_code as salaryWorkRankCode, 
+        salary_work_rank_name as salaryWorkRankName, 
+        tech_work_rank_code as techWorkRankCode, 
+        tech_work_rank_name as techWorkRankName, 
+        staff_title_rank_code as staffTitleRankCode, 
+        staff_title_rank_name as staffTitleRankName, 
+        adm_duty as admDuty, 
+        adm_duty_name as admDutyName, 
+        work_spec_name as workSpecName, 
+        work_start_date as workStartDate, 
+        work_end_date as workEndDate, 
+        work_unit as workUnit 
+        FROM ${tableName} 
+        <if test="staffNo != null and staffNo != ''"> 
+            where staff_no = #{staffNo} 
+        </if> 
+    </select> 
+ 
+    <!--单个教职工家庭成员查询--> 
+    <select id="getTchFamilyInfo" resultType="com.hzsun.bigdata.teacher.model.dto.TchFamilyMemDTO"> 
+        select 
+        family_mem_no as familyMemNo, 
+        mem_name as memName, 
+        relt_name as reltName, 
+        tel_no as telNo, 
+        mem_work_unit as memWorkUnit 
+        from ${tableName} 
+        <if test="staffNo != null and staffNo != ''"> 
+            where staff_no = #{staffNo} 
+        </if> 
+    </select> 
+ 
+    <!--单个教职工奖励信息查询--> 
+    <select id="getTchAwardInfo" resultType="com.hzsun.bigdata.teacher.model.dto.TchAwardInfoDTO"> 
+        SELECT 
+        awrd_no AS awrdNo, 
+        awrd_name AS awrdName, 
+        grant_awrd_unit AS grantAwrdUnit, 
+        awrd_level AS awrdLevel 
+        FROM ${tableName} 
+        <if test="staffNo != null and staffNo != ''"> 
+            where staff_no = #{staffNo} 
+        </if> 
+    </select> 
+ 
+    <!--教职工性别分布统计信息查询--> 
+    <select id="getTchSexStatic" resultType="com.hzsun.bigdata.teacher.model.dto.TchSexStaticDTO"> 
+        select 
+        sex_code as sexCode, 
+        sex_name as sexName, 
+        sum(staff_num) as staffNum, 
+        round( sum(staff_num) * 100.00/(select sum(staff_num) from ${tableName} where sex_code in('1','2') and 
+        status_code = '11' and data_mon = (select data_mon from ${tableName} order by data_mon desc limit 1 offset 0)) 
+        ,2 ) as staffRate 
+        from ${tableName} 
+        where status_code = '11' 
+        and sex_code != '' 
+        <if test="sexCode != null and sexCode != ''"> 
+            and sex_code = #{sexCode} 
+        </if> 
+        and data_mon = (select data_mon from ${tableName} order by data_mon desc limit 1 offset 0) 
+        group by sex_code,sex_name 
+        order by sex_code 
+    </select> 
+ 
+    <!--教职工院系分布统计信息查询--> 
+    <select id="getTchCollegeStatic" resultType="com.hzsun.bigdata.teacher.model.dto.TchCollegeStaticDTO"> 
+        select 
+        unit_no as unitNo, 
+        unit_name as unitName, 
+        sum(staff_num) as staffNum 
+        from ${tableName} 
+        where status_code = '11' 
+        <if test="unitNo != null and unitNo != ''"> 
+            and unit_no = #{unitNo} 
+        </if> 
+        and data_mon = (select data_mon from ${tableName} order by data_mon desc limit 1 offset 0) 
+        group by unit_no,unit_name 
+        order by unit_no 
+    </select> 
+ 
+    <!--教职工最高学历分布统计信息查询--> 
+    <select id="getTchTopEduStatic" resultType="com.hzsun.bigdata.teacher.model.dto.TchTopEduStaticDTO"> 
+        select 
+        top_edu_bg_code as topEduBgCode, 
+        top_edu_bg_name as topEduBgName, 
+        sum(staff_num) as staffNum, 
+        round( sum(staff_num) * 100.00/ 
+        (select sum(staff_num) from ${tableName} where status_code = '11' and data_mon = (select data_mon from 
+        ${tableName} order by data_mon desc limit 1 offset 0)) ,2 ) as staffRate 
+        from ${tableName} 
+        where status_code = '11' 
+        <if test="topEduBgCode != null and topEduBgCode != ''"> 
+            and top_edu_bg_code = #{topEduBgCode} 
+        </if> 
+        and data_mon = (select data_mon from ${tableName} order by data_mon desc limit 1 offset 0) 
+        group by top_edu_bg_code,top_edu_bg_name 
+        order by sum(staff_num) desc 
+    </select> 
+ 
+    <!--教职工曾任党政职务分布统计信息查询--> 
+    <select id="getTchPartyDutyStatic" resultType="com.hzsun.bigdata.teacher.model.dto.TchPartyDutyStaticDTO"> 
+        select 
+        work_spec_name as workSpecName, 
+        sum(staff_num) as staffNum, 
+        round( sum(staff_num) * 100.00/ 
+        (select sum(staff_num) from ${tableName} where status_code = '11' and data_mon = (select data_mon from 
+        ${tableName} order by data_mon desc limit 1 offset 0)) ,2 ) as staffRate 
+        from ${tableName} 
+        where status_code = '11' 
+        and work_spec_name in ('教师','讲师','助教','访问学者','副教授','指导员','博士后','科员','助理实验师','工程师') 
+        <if test="workSpecName != null and workSpecName != ''"> 
+            and work_spec_name = #{workSpecName} 
+        </if> 
+        and data_mon = (select data_mon from ${tableName} order by data_mon desc limit 1 offset 0) 
+        group by work_spec_name 
+        order by sum(staff_num) desc 
+    </select> 
+ 
+    <!--教职工学科类别分布统计信息查询--> 
+    <select id="getTchSubjClassStatic" resultType="com.hzsun.bigdata.teacher.model.dto.TchSubjClassStaticDTO"> 
+        select 
+        subj_class_code as subjClassCode, 
+        subj_class_name as subjClassName, 
+        sum(staff_num) as staffNum, 
+        round( sum(staff_num) * 100.00/ 
+        (select sum(staff_num) from ${tableName} where status_code = '11' and data_mon = (select data_mon from 
+        ${tableName} order by data_mon desc limit 1 offset 0)) ,2 ) as staffRate 
+        from ${tableName} 
+        where status_code = '11' 
+        <if test="subjClassCode != null and subjClassCode != ''"> 
+            and subj_class_code = #{subjClassCode} 
+        </if> 
+        and data_mon = (select data_mon from ${tableName} order by data_mon desc limit 1 offset 0) 
+        group by subj_class_code,subj_class_name 
+        order by sum(staff_num) desc 
+    </select> 
+ 
+    <!--教职工岗位名称统计信息查询--> 
+    <select id="getTchWorkStatic" resultType="com.hzsun.bigdata.teacher.model.dto.TchWorkStaticDTO"> 
+        select 
+        work_name as workName, 
+        sum(staff_num) as staffNum 
+        from ${tableName} 
+        where status_code = '11' 
+        <if test="workName != null and workName != ''"> 
+            and work_name = #{workName} 
+        </if> 
+        and data_mon = (select data_mon from ${tableName} order by data_mon desc limit 1 offset 0) 
+        group by work_name 
+        order by work_name 
+    </select> 
+ 
+    <!--教职工职称级别统计信息查询--> 
+    <select id="getTchTitleRankStatic" resultType="com.hzsun.bigdata.teacher.model.dto.TchTitleRankStaticDTO"> 
+        select 
+        staff_title_rank_code as staffTitleRankCode, 
+        staff_title_rank_name as staffTitleRankName, 
+        sum(staff_num) as staffNum 
+        from ${tableName} 
+        where status_code = '11' 
+        <if test="staffTitleRankCode != null and staffTitleRankCode != ''"> 
+            and staff_title_rank_code = #{staffTitleRankCode} 
+        </if> 
+        and data_mon = (select data_mon from ${tableName} order by data_mon desc limit 1 offset 0) 
+        group by staff_title_rank_code,staff_title_rank_name 
+        order by staff_title_rank_code 
+    </select> 
+ 
+    <!--教职工工资岗位级别分布统计信息查询--> 
+    <select id="getTchSalaryPostLvStatic" resultType="com.hzsun.bigdata.teacher.model.dto.TchSalaryPostLvStaticDTO"> 
+        select 
+        salary_work_rank_code as salaryWorkRankCode, 
+        salary_work_rank_name as salaryWorkRankName, 
+        sum(staff_num) as staffNum, 
+        round( sum(staff_num) * 100.00/ 
+        (select sum(staff_num) from ${tableName} where status_code = '11' and data_mon = (select data_mon from 
+        ${tableName} order by data_mon desc limit 1 offset 0)) ,2 ) as staffRate 
+        from ${tableName} 
+        where status_code = '11' 
+        <if test="salaryWorkRankCode != null and salaryWorkRankCode != ''"> 
+            and salary_work_rank_code = #{salaryWorkRankCode} 
+        </if> 
+        and data_mon = (select data_mon from ${tableName} order by data_mon desc limit 1 offset 0) 
+        group by salary_work_rank_code,salary_work_rank_name 
+        order by sum(staff_num) desc 
+    </select> 
+ 
+    <!--教职工年龄分布统计信息查询--> 
+    <select id="getTchAgeStatic" resultType="com.hzsun.bigdata.teacher.model.dto.TchAgeStaticDTO"> 
+        select '小于等于29岁' as ageStat, age_below_29_num as staffNum from ${tableName} 
+        union all 
+        select '30岁到34岁' as ageStat, age_30_to_34_num as staffNum from ${tableName} 
+        union all 
+        select '35岁到39岁' as ageStat, age_35_to_39_num as staffNum from ${tableName} 
+        union all 
+        select '40岁到44岁' as ageStat, age_40_to_44_num as staffNum from ${tableName} 
+        union all 
+        select '45岁到49岁' as ageStat, age_45_to_49_num as staffNum from ${tableName} 
+        union all 
+        select '大于等于50岁' as ageStat, age_above_50_num as staffNum from ${tableName} 
+    </select> 
+ 
+    <!--学院教职工基本信息查询--> 
+    <select id="getTchBaseInfoCollege" resultType="com.hzsun.bigdata.teacher.model.dto.TchBaseSimpleInfoDTO"> 
+        SELECT 
+        staff_no as staffNo, 
+        staff_name as staffName, 
+        unit_no as unitNo, 
+        unit_name as unitName, 
+        sex_code as sexCode, 
+        sex_name as sexName, 
+        staff_age as staffAge, 
+        bd_day as bdDay, 
+        native_place as nativePlace, 
+        nation_code as nationCode, 
+        nation_name as nationName, 
+        ctry_code as ctryCode, 
+        ctry_name as ctryName, 
+        card_type_code as cardTypeCode, 
+        card_type_name as cardTypeName, 
+        card_no as cardNo, 
+        marital_no as maritalNo, 
+        marital_stat as maritalStat, 
+        pol_code as polCode, 
+        pol_type as polType, 
+        status_code as statusCode, 
+        status_name as statusName 
+        FROM ${tableName} 
+        <if test="unitNo != null and unitNo != ''"> 
+            where unit_no = #{unitNo} 
+        </if> 
+    </select> 
+ 
+    <!--学院教职工基本信息查询(内部使用)--> 
+    <select id="getTchBaseInfoCollegeSecret" 
+            resultType="com.hzsun.bigdata.teacher.model.dto.TchBaseSimpleInfoSecretDTO"> 
+        select 
+        staff_no as staffNo, 
+        staff_name as staffName, 
+        unit_no as unitNo, 
+        unit_name as unitName, 
+        sex_code as sexCode, 
+        sex_name as sexName, 
+        staff_age as staffAge, 
+        bd_day as bdDay, 
+        native_place as nativePlace, 
+        nation_code as nationCode, 
+        nation_name as nationName, 
+        ctry_code as ctryCode, 
+        ctry_name as ctryName, 
+        card_type_code as cardTypeCode, 
+        card_type_name as cardTypeName, 
+        card_no as cardNo, 
+        marital_no as maritalNo, 
+        marital_stat as maritalStat, 
+        pol_code as polCode, 
+        pol_type as polType 
+        from ${tableName} 
+        <if test="unitNo != null and unitNo != ''"> 
+            where unit_no = #{unitNo} 
+        </if> 
+    </select> 
+ 
+</mapper> 

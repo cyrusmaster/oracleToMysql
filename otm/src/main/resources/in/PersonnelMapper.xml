@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzsun.zbp.tch.staff.dao.PersonnelDAO">
+
+    <!--数据列表三元组映射-->
+    <resultMap id="SimpleTuple" type="com.hzsun.zbp.tch.staff.model.dto.SimpleTupleDTO">
+        <result column="key" jdbcType="VARCHAR" property="key"></result>
+        <result column="item" jdbcType="VARCHAR" property="item"></result>
+        <result column="value" jdbcType="VARCHAR" property="value"></result>
+        <result column="total" jdbcType="VARCHAR" property="total"></result>
+    </resultMap>
+
+    <resultMap id="HighChartDTO" type="com.hzsun.zbp.tch.staff.model.dto.HighChartDTO">
+        <!-- 共享院士人数 -->
+        <result column="shared_academician_cnt" jdbcType="INTEGER" property="sharedAcademicianCnt"></result>
+        <!-- 国家级高层次人才人数 -->
+        <result column="intl_cnt" jdbcType="INTEGER" property="intlCnt"></result>
+        <!-- 省部级高层次人才人数 -->
+        <result column="prvn_cnt" jdbcType="INTEGER" property="prvnCnt"></result>
+        <!-- 校级人才人数 -->
+        <result column="sch_cnt" jdbcType="INTEGER" property="schCnt"></result>
+    </resultMap>
+
+    <!--map-->
+
+    <!--获取数据生成年份-->
+    <sql id="yearSql">
+        (select (case cc
+            when 0
+                then (select data_date
+                      from ${tableName}
+                      where ltrim(to_char(to_number('${year}', '9999') - 1, '9999'))  = to_char(data_date, 'yyyy')
+                      order by data_date desc
+                      limit 1 offset 0)
+                else (select data_date
+                      from ${tableName}
+                      where '${year}' = to_char(data_date, 'yyyy')
+                      order by data_date desc
+                      limit 1 offset 0) end) as year
+        from (select count(*) cc
+                 from ${tableName}
+                 where '${year}' = to_char(data_date, 'yyyy')
+             ) t)
+    </sql>
+
+    <!--高层次人才统计图-->
+    <select id="listHighChart" resultMap="HighChartDTO">
+        select shared_academician_cnt,intl_cnt,prvn_cnt,sch_cnt
+        from ${tableName}
+        where data_date = <include refid="yearSql"/>
+    </select>
+
+    <!--教学人才概览-->
+    <select id="getTchPersonnel" resultMap="SimpleTuple">
+        select staff_teach_name as key,staff_cnt as value
+        from ${tableName}
+        where data_date = <include refid="yearSql"/>
+    </select>
+
+    <!--生师比趋势图-->
+    <select id="chartStuTchRatio" resultMap="SimpleTuple">
+        (select stat_year as key,'生师比' as item,ugrd_tch_rate as value
+        from ${tableName}
+        where data_date = <include refid="yearSql"/>
+        order by stat_year asc)
+        union all
+        (select stat_year as key,'生师比同比' as item,ugrd_tch_rate_yoy as value
+        from ${tableName}
+        where data_date = <include refid="yearSql"/>
+        order by stat_year asc)
+    </select>
+
+
+<!--sql-->
+
+</mapper>

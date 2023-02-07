@@ -1,0 +1,554 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzsun.zbp.hsstuportrait.dao.OpenApiDAO">
+	<!--单个本科生基本信息查询映射-->
+	<resultMap id="JBXXDTO" type="com.hzsun.zbp.hsstuportrait.model.dto.JBXXDTO">
+		<!-- 学号 -->
+		<result column="STU_NO" jdbcType="VARCHAR" property="stuNo"></result>
+		<!-- 姓名 -->
+		<result column="STU_NAME" jdbcType="VARCHAR" property="stuName"></result>
+		<!-- 身份证件类型 -->
+		<result column="CARD_TYPE" jdbcType="VARCHAR" property="cardType"></result>
+		<!-- 身份证件号 -->
+		<result column="CARD_NO" jdbcType="VARCHAR" property="cardNo"></result>
+		<!-- 出生日期 -->
+		<result column="BD_DAY" jdbcType="VARCHAR" property="bdDay"></result>
+		<!-- 籍贯 -->
+		<result column="NATIVE_PLACE" jdbcType="VARCHAR" property="nativePlace"></result>
+		<!-- 民族 -->
+		<result column="STU_NATION" jdbcType="VARCHAR" property="stuNation"></result>
+		<!-- 国籍/地区 -->
+		<result column="STU_STATE" jdbcType="VARCHAR" property="stuState"></result>
+		<!-- 政治面貌 -->
+		<result column="STU_POL" jdbcType="VARCHAR" property="stuPol"></result>
+		<!-- 曾用名 -->
+		<result column="BEFORE_NAME" jdbcType="VARCHAR" property="beforeName"></result>
+		<!-- 性别 -->
+		<result column="STU_SEX" jdbcType="VARCHAR" property="stuSex"></result>
+		<!-- 姓名拼音 -->
+		<result column="NAME_PHNTC" jdbcType="VARCHAR" property="namePhntc"></result>
+	</resultMap>
+
+	<!--单个本科生学籍信息查询映射-->
+	<resultMap id="XJXXDTO" type="com.hzsun.zbp.hsstuportrait.model.dto.XJXXDTO">
+		<!-- 学号 -->
+		<result column="STU_NO" jdbcType="VARCHAR" property="stuNo"></result>
+		<!-- 班级名称 -->
+		<result column="CLASS_NAME" jdbcType="VARCHAR" property="className"></result>
+		<!-- 院系所名称 -->
+		<result column="COLL_NAME" jdbcType="VARCHAR" property="collName"></result>
+		<!-- 专业名称 -->
+		<result column="SPEC_NAME" jdbcType="VARCHAR" property="specName"></result>
+		<!-- 所在年级 -->
+		<result column="GRADE_NO" jdbcType="VARCHAR" property="gradeNo"></result>
+		<!-- 学生当前状态 -->
+		<result column="STU_STATUS" jdbcType="VARCHAR" property="stuStatus"></result>
+		<!-- 培养层次 -->
+		<result column="DVLP_LEVEL" jdbcType="VARCHAR" property="dvlpLevel"></result>
+		<!-- 入学年月 -->
+		<result column="ENTER_MON" jdbcType="VARCHAR" property="enterMon"></result>
+		<!-- 学生类别 -->
+		<result column="STU_TYPE" jdbcType="VARCHAR" property="stuType"></result>
+		<!-- 是否有学籍 -->
+		<result column="SCH_FLAG" jdbcType="VARCHAR" property="schFlag"></result>
+		<!-- 是否住校 -->
+		<result column="DORM_FLAG" jdbcType="VARCHAR" property="dormFlag"></result>
+		<!-- 学籍生效日期 -->
+		<result column="SCH_DATE" jdbcType="VARCHAR" property="schDate"></result>
+		<!-- 校区 -->
+		<result column="CMPS_NAME" jdbcType="VARCHAR" property="cmpsName"></result>
+		<!-- 中队名称 -->
+		<result column="SQDN_NAME" jdbcType="VARCHAR" property="sqdnName"></result>
+	</resultMap>
+
+	<!--单个本科生结束学业信息查询映射-->
+	<resultMap id="JSXYDTO" type="com.hzsun.zbp.hsstuportrait.model.dto.JSXYDTO">
+		<!-- 学生ID -->
+		<result column="STU_ID" jdbcType="VARCHAR" property="stuId"></result>
+		<!-- 结束学业年月 -->
+		<result column="FINISH_SCH_WORK_MON" jdbcType="VARCHAR" property="finishSchWorkMon"></result>
+		<!-- 结束学业码 -->
+		<result column="FINISH_SCH_WORK_YEAR_CODE" jdbcType="VARCHAR" property="finishSchWorkYearCode"></result>
+		<!-- 结束学业原因说明 -->
+		<result column="FINISH_SCH_WORK_YEAR_REASON" jdbcType="VARCHAR" property="finishSchWorkYearReason"></result>
+		<!-- 毕业证书号 -->
+		<result column="GRAD_CREDT_NO" jdbcType="VARCHAR" property="gradCredtNo"></result>
+		<!-- 学位证书号 -->
+		<result column="DEGREE_CREDT_NO" jdbcType="VARCHAR" property="degreeCredtNo"></result>
+		<!-- 结业证书号 -->
+		<result column="FINISH_SCH_WORK_CREDT_NO" jdbcType="VARCHAR" property="finishSchWorkCredtNo"></result>
+		<!-- 分流方向码 -->
+		<result column="DIVIDE_DIRECT_CODE" jdbcType="VARCHAR" property="divideDirectCode"></result>
+		<!-- 补行毕业日期 -->
+		<result column="REISSUE_GRAD_DATE" jdbcType="VARCHAR" property="reissueGradDate"></result>
+		<!-- 补行毕业原因 -->
+		<result column="REISSUE_GRAD_REASON" jdbcType="VARCHAR" property="reissueGradReason"></result>
+		<!-- 辅修学位证书号 -->
+		<result column="MINOR_DEGREE_CREDT_NO" jdbcType="VARCHAR" property="minorDegreeCredtNo"></result>
+		<!-- 辅修专业证书号 -->
+		<result column="MINOR_SPEC_CREDT_NO" jdbcType="VARCHAR" property="minorSpecCredtNo"></result>
+		<!-- 辅修结业证书号 -->
+		<result column="MINOR_FINISH_SCH_WORK_CREDT_NO" jdbcType="VARCHAR" property="minorFinishSchWorkCredtNo"></result>
+	</resultMap>
+
+	<!--单个本科生学位、学历查询映射-->
+	<resultMap id="XWXLDTO" type="com.hzsun.zbp.hsstuportrait.model.dto.XWXLDTO">
+		<!-- 学号 -->
+		<result column="STU_NO" jdbcType="VARCHAR" property="stuNo"></result>
+		<!-- 学位授予日期 -->
+		<result column="DEGREE_DAY" jdbcType="VARCHAR" property="degreeDay"></result>
+		<!-- 学位证书号 -->
+		<result column="DEGREE_CREDT_NO" jdbcType="VARCHAR" property="degreeCredtNo"></result>
+		<!-- 学习形式 -->
+		<result column="STUDY_MODEL" jdbcType="VARCHAR" property="studyModel"></result>
+		<!-- 预计毕业时间 -->
+		<result column="PLAN_GRAD_DAY" jdbcType="VARCHAR" property="planGradDay"></result>
+		<!-- 学制 -->
+		<result column="EDU_SYSTEM" jdbcType="VARCHAR" property="eduSystem"></result>
+	</resultMap>
+
+	<!--单个本科生家庭通讯方式查询映射-->
+	<resultMap id="JTTXDTO" type="com.hzsun.zbp.hsstuportrait.model.dto.JTTXDTO">
+		<!-- 学生ID -->
+		<result column="STU_ID" jdbcType="VARCHAR" property="stuId"></result>
+		<!-- 地区 -->
+		<result column="FAMILY_ZONE" jdbcType="VARCHAR" property="familyZone"></result>
+		<!-- 家庭住址 -->
+		<result column="FAMILY_ADDR" jdbcType="VARCHAR" property="familyAddr"></result>
+		<!-- 家庭邮政编码 -->
+		<result column="FAMILY_POST_CODE" jdbcType="VARCHAR" property="familyPostCode"></result>
+		<!-- 家庭电话 -->
+		<result column="FAMILY_TEL" jdbcType="VARCHAR" property="familyTel"></result>
+		<!-- 家庭电子信箱 -->
+		<result column="FAMILY_EMAIL_ADDR" jdbcType="VARCHAR" property="familyEmailAddr"></result>
+	</resultMap>
+
+	<!--单个本科生家庭成员查询映射-->
+	<resultMap id="JTCYDTO" type="com.hzsun.zbp.hsstuportrait.model.dto.JTCYDTO">
+		<!-- 学生ID -->
+		<result column="STU_ID" jdbcType="VARCHAR" property="stuId"></result>
+		<!-- 学号 -->
+		<result column="STU_NO" jdbcType="VARCHAR" property="stuNo"></result>
+		<!-- 电话 -->
+		<result column="TEL_NO" jdbcType="VARCHAR" property="telNo"></result>
+		<!-- 电子信箱 -->
+		<result column="EMAIL_ADDR" jdbcType="VARCHAR" property="emailAddr"></result>
+		<!-- 民族 -->
+		<result column="NATION_NAME" jdbcType="VARCHAR" property="nationName"></result>
+		<!-- 国籍/地区 -->
+		<result column="STU_CTRY" jdbcType="VARCHAR" property="stuCtry"></result>
+		<!-- 健康状况 -->
+		<result column="HEALTH_STATUS" jdbcType="VARCHAR" property="healthStatus"></result>
+		<!-- 关系 -->
+		<result column="RELT_NAME" jdbcType="VARCHAR" property="reltName"></result>
+		<!-- 成员姓名 -->
+		<result column="MEM_NAME" jdbcType="VARCHAR" property="memName"></result>
+		<!-- 出生年月 -->
+		<result column="BD_MON" jdbcType="VARCHAR" property="bdMon"></result>
+		<!-- 成员工作单位 -->
+		<result column="MEM_WORK_UNIT" jdbcType="VARCHAR" property="memWorkUnit"></result>
+		<!-- 从业 -->
+		<result column="WORK_NAME" jdbcType="VARCHAR" property="workName"></result>
+		<!-- 专业技术职务 -->
+		<result column="SPEC_WORK" jdbcType="VARCHAR" property="specWork"></result>
+		<!-- 职务级别 -->
+		<result column="WORK_RANK" jdbcType="VARCHAR" property="workRank"></result>
+	</resultMap>
+
+	<!--单个本科生个人通讯信息查询映射-->
+	<resultMap id="GRTXDTO" type="com.hzsun.zbp.hsstuportrait.model.dto.GRTXDTO">
+		<!-- 学生ID -->
+		<result column="STU_ID" jdbcType="VARCHAR" property="stuId"></result>
+		<!-- 邮政编码 -->
+		<result column="POST_CODE" jdbcType="VARCHAR" property="postCode"></result>
+		<!-- 通信地址 -->
+		<result column="COMM_ADDR" jdbcType="VARCHAR" property="commAddr"></result>
+		<!-- 电话 -->
+		<result column="TEL_NO" jdbcType="VARCHAR" property="telNo"></result>
+		<!-- 移动电话 -->
+		<result column="MOBILE_NO" jdbcType="VARCHAR" property="mobileNo"></result>
+		<!-- 传真电话 -->
+		<result column="FAX_TEL" jdbcType="VARCHAR" property="faxTel"></result>
+		<!-- 电子信箱 -->
+		<result column="EMAIL_ADDR" jdbcType="VARCHAR" property="emailAddr"></result>
+		<!-- 网络地址 -->
+		<result column="NET_ADDR" jdbcType="VARCHAR" property="netAddr"></result>
+		<!-- 即时通讯号 -->
+		<result column="IMM_COMM_NO" jdbcType="VARCHAR" property="immCommNo"></result>
+	</resultMap>
+
+	<!--单个本科生住宿信息查询映射-->
+	<resultMap id="XSZSDTO" type="com.hzsun.zbp.hsstuportrait.model.dto.XSZSDTO">
+		<!-- 学生ID -->
+		<result column="STU_ID" jdbcType="VARCHAR" property="stuId"></result>
+		<!-- 校区 -->
+		<result column="CMPS_NAME" jdbcType="VARCHAR" property="cmpsName"></result>
+		<!-- 建筑物 -->
+		<result column="BUILD_NAME" jdbcType="VARCHAR" property="buildName"></result>
+		<!-- 宿舍房间号 -->
+		<result column="BUILD_ROOM_NO" jdbcType="VARCHAR" property="buildRoomNo"></result>
+		<!-- 床位号 -->
+		<result column="BED_NO" jdbcType="VARCHAR" property="bedNo"></result>
+		<!-- 宿舍电话 -->
+		<result column="DORM_TEL" jdbcType="VARCHAR" property="dormTel"></result>
+		<!-- 入住日期 -->
+		<result column="IN_DAY" jdbcType="VARCHAR" property="inDay"></result>
+		<!-- 迁出日期 -->
+		<result column="OUT_DAY" jdbcType="VARCHAR" property="outDay"></result>
+		<!-- 校外住址 -->
+		<result column="OUT_SCH_ADDR" jdbcType="VARCHAR" property="outSchAddr"></result>
+		<!-- 住处电话 -->
+		<result column="HOUSE_TEL" jdbcType="VARCHAR" property="houseTel"></result>
+		<!-- 所在地址 -->
+		<result column="STU_ADDR" jdbcType="VARCHAR" property="stuAddr"></result>
+	</resultMap>
+
+	<!--单个本科生户口状况查询映射-->
+	<resultMap id="HKZKDTO" type="com.hzsun.zbp.hsstuportrait.model.dto.HKZKDTO">
+		<!-- 学生ID -->
+		<result column="STU_ID" jdbcType="VARCHAR" property="stuId"></result>
+		<!-- 入学户口类别 -->
+		<result column="ENTER_HOUSEHOLD_CLASS" jdbcType="VARCHAR" property="enterHouseholdClass"></result>
+		<!-- 户口原所在地址 -->
+		<result column="HOUSEHOLD_ORIGIN_PLACE_ADDR" jdbcType="VARCHAR" property="householdOriginPlaceAddr"></result>
+		<!-- 户口原省市 -->
+		<result column="HOUSEHOLD_ORIGIN_PRVN" jdbcType="VARCHAR" property="householdOriginPrvn"></result>
+		<!-- 入学前户口类别 -->
+		<result column="ENTER_HOUSEHOLD_ORIGIN_CLASS" jdbcType="VARCHAR" property="enterHouseholdOriginClass"></result>
+		<!-- 是否需要迁入户口 -->
+		<result column="MOVE_IN_FLAG" jdbcType="VARCHAR" property="moveInFlag"></result>
+		<!-- 户口交办情况 -->
+		<result column="DEAL_CODE" jdbcType="VARCHAR" property="dealName"></result>
+		<!-- 户口交办日期 -->
+		<result column="DEAL_DAY" jdbcType="VARCHAR" property="dealDay"></result>
+		<!-- 户口是否在校 -->
+		<result column="HOUSEHOLD_IN_SCH_FLAG" jdbcType="VARCHAR" property="householdInSchFlag"></result>
+		<!-- 户口迁出日期 -->
+		<result column="MOVE_OUT_DAY" jdbcType="VARCHAR" property="moveOutDay"></result>
+	</resultMap>
+
+	<!--单个本科生来源数据查询映射-->
+	<resultMap id="XSLYDTO" type="com.hzsun.zbp.hsstuportrait.model.dto.XSLYDTO">
+		<!-- 学号 -->
+		<result column="STU_NO" jdbcType="VARCHAR" property="stuNo"></result>
+		<!-- 入学年月 -->
+		<result column="ENTER_MON" jdbcType="VARCHAR" property="enterMon"></result>
+		<!-- 学制 -->
+		<result column="EDU_SYSTEM" jdbcType="VARCHAR" property="eduSystem"></result>
+		<!-- 就读方式码 -->
+		<result column="STUDY_WAY_CODE" jdbcType="VARCHAR" property="studyWayCode"></result>
+		<!-- 就读方式 -->
+		<result column="STUDY_WAY" jdbcType="VARCHAR" property="studyWay"></result>
+		<!-- 学生来源 -->
+		<result column="STU_ORIGIN" jdbcType="VARCHAR" property="stuOrigin"></result>
+		<!-- 入学方式码 -->
+		<result column="ENTER_WAY_CODE" jdbcType="VARCHAR" property="enterWayCode"></result>
+		<!-- 入学方式 -->
+		<result column="ENTER_WAY" jdbcType="VARCHAR" property="enterWay"></result>
+		<!-- 来源地区 -->
+		<result column="SRC_ZONE" jdbcType="VARCHAR" property="srcZone"></result>
+		<!-- 毕业中学 -->
+		<result column="SCH_NAME" jdbcType="VARCHAR" property="schName"></result>
+	</resultMap>
+
+	<!--本科生院系所统计信息查询映射-->
+	<resultMap id="YXTJDTO" type="com.hzsun.zbp.hsstuportrait.model.dto.YXTJDTO">
+		<!-- 院系所ID -->
+		<result column="COLL_ID" jdbcType="VARCHAR" property="collId"></result>
+		<!-- 单位号 -->
+		<result column="UNIT_ID" jdbcType="VARCHAR" property="unitId"></result>
+		<!-- 隶属单位号 -->
+		<result column="DPND_UNIT_NO" jdbcType="VARCHAR" property="dpndUnitNo"></result>
+		<!-- 单位名称 -->
+		<result column="UNIT_NAME" jdbcType="VARCHAR" property="unitName"></result>
+		<!-- 单位简称 -->
+		<result column="SHORT_NAME" jdbcType="VARCHAR" property="shortName"></result>
+		<!-- 学生人数 -->
+		<result column="STU_NUM" jdbcType="INTEGER" property="stuNum"></result>
+	</resultMap>
+
+	<!--本科生专业统计信息查询映射-->
+	<resultMap id="ZYTJDTO" type="com.hzsun.zbp.hsstuportrait.model.dto.ZYTJDTO">
+		<!-- 专业名称 -->
+		<result column="SPEC_NAME" jdbcType="VARCHAR" property="specName"></result>
+		<!-- 学生人数 -->
+		<result column="STU_NUM" jdbcType="INTEGER" property="stuNum"></result>
+	</resultMap>
+
+	<!--本科生年级统计信息查询映射-->
+	<resultMap id="NJTJDTO" type="com.hzsun.zbp.hsstuportrait.model.dto.NJTJDTO">
+		<!-- 班级名称 -->
+		<result column="GRADE_NAME" jdbcType="VARCHAR" property="gradeName"></result>
+		<!-- 学生人数 -->
+		<result column="STU_NUM" jdbcType="INTEGER" property="stuNum"></result>
+	</resultMap>
+
+	<!--本科生民族统计信息查询映射-->
+	<resultMap id="MZTJDTO" type="com.hzsun.zbp.hsstuportrait.model.dto.MZTJDTO">
+		<!-- 民族 -->
+		<result column="STU_NATION" jdbcType="VARCHAR" property="stuNation"></result>
+		<!-- 学生人数 -->
+		<result column="STU_NUM" jdbcType="INTEGER" property="stuNum"></result>
+	</resultMap>
+
+	<!--班级本科生基本信息查询映射-->
+	<resultMap id="BJTJDTO" type="com.hzsun.zbp.hsstuportrait.model.dto.BJTJDTO">
+		<!-- 学号 -->
+		<result column="STU_NO" jdbcType="VARCHAR" property="stuNo"></result>
+		<!-- 身份证件类型 -->
+		<result column="CARD_TYPE" jdbcType="VARCHAR" property="cardType"></result>
+		<!-- 身份证件号 -->
+		<result column="CARD_NO" jdbcType="VARCHAR" property="cardNo"></result>
+		<!-- 出生日期 -->
+		<result column="BD_DAY" jdbcType="VARCHAR" property="bdDay"></result>
+		<!-- 籍贯 -->
+		<result column="NATIVE_PLACE" jdbcType="VARCHAR" property="nativePlace"></result>
+		<!-- 民族 -->
+		<result column="STU_NATION" jdbcType="VARCHAR" property="stuNation"></result>
+		<!-- 国籍/地区 -->
+		<result column="STU_STATE" jdbcType="VARCHAR" property="stuState"></result>
+		<!-- 政治面貌 -->
+		<result column="STU_POL" jdbcType="VARCHAR" property="stuPol"></result>
+		<!-- 曾用名 -->
+		<result column="BEFORE_NAME" jdbcType="VARCHAR" property="beforeName"></result>
+		<!-- 性别 -->
+		<result column="STU_SEX" jdbcType="VARCHAR" property="stuSex"></result>
+		<!-- 性别码 -->
+		<result column="SEX_CODE" jdbcType="VARCHAR" property="sexCode"></result>
+		<!-- 姓名拼音 -->
+		<result column="NAME_PHNTC" jdbcType="VARCHAR" property="namePhntc"></result>
+	</resultMap>
+
+	<!--中队本科生学籍信息查询映射-->
+	<resultMap id="ZDTJDTO" type="com.hzsun.zbp.hsstuportrait.model.dto.ZDTJDTO">
+		<!-- 学号 -->
+		<result column="STU_NO" jdbcType="VARCHAR" property="stuNo"></result>
+		<!-- 班级名称 -->
+		<result column="CLASS_NAME" jdbcType="VARCHAR" property="className"></result>
+		<!-- 院系所名称 -->
+		<result column="COLL_NAME" jdbcType="VARCHAR" property="collName"></result>
+		<!-- 专业名称 -->
+		<result column="SPEC_NAME" jdbcType="VARCHAR" property="specName"></result>
+		<!-- 所在年级 -->
+		<result column="GRADE_NO" jdbcType="VARCHAR" property="gradeNo"></result>
+		<!-- 学生当前状态 -->
+		<result column="STU_STATUS" jdbcType="VARCHAR" property="stuStatus"></result>
+		<!-- 培养层次 -->
+		<result column="DVLP_LEVEL" jdbcType="VARCHAR" property="dvlpLevel"></result>
+		<!-- 入学年月 -->
+		<result column="ENTER_MON" jdbcType="VARCHAR" property="enterMon"></result>
+		<!-- 学生类别 -->
+		<result column="STU_TYPE" jdbcType="VARCHAR" property="stuType"></result>
+		<!-- 是否有学籍 -->
+		<result column="SCH_FLAG" jdbcType="VARCHAR" property="schFlag"></result>
+		<!-- 是否住校 -->
+		<result column="DORM_FLAG" jdbcType="VARCHAR" property="dormFlag"></result>
+		<!-- 学籍生效日期 -->
+		<result column="SCH_DATE" jdbcType="VARCHAR" property="schDate"></result>
+		<!-- 校区 -->
+		<result column="CMPS_NAME" jdbcType="VARCHAR" property="cmpsName"></result>
+		<!-- 中队名称 -->
+		<result column="SQDN_NAME" jdbcType="VARCHAR" property="sqdnName"></result>
+	</resultMap>
+
+	<!--校本科生学籍信息查询映射-->
+	<resultMap id="XJTJDTO" type="com.hzsun.zbp.hsstuportrait.model.dto.XJTJDTO">
+		<!-- 学号 -->
+		<result column="STU_NO" jdbcType="VARCHAR" property="stuNo"></result>
+		<!-- 班级名称 -->
+		<result column="CLASS_NAME" jdbcType="VARCHAR" property="className"></result>
+		<!-- 院系所名称 -->
+		<result column="COLL_NAME" jdbcType="VARCHAR" property="collName"></result>
+		<!-- 专业名称 -->
+		<result column="SPEC_NAME" jdbcType="VARCHAR" property="specName"></result>
+		<!-- 所在年级 -->
+		<result column="GRADE_NO" jdbcType="VARCHAR" property="gradeNo"></result>
+		<!-- 学生当前状态 -->
+		<result column="STU_STATUS" jdbcType="VARCHAR" property="stuStatus"></result>
+		<!-- 培养状态 -->
+		<result column="DVLP_STATUS" jdbcType="VARCHAR" property="dvlpStatus"></result>
+		<!-- 入学年月 -->
+		<result column="ENTER_MON" jdbcType="VARCHAR" property="enterMon"></result>
+		<!-- 学生类别 -->
+		<result column="STU_TYPE" jdbcType="VARCHAR" property="stuType"></result>
+		<!-- 是否有学籍 -->
+		<result column="SCH_FLAG" jdbcType="VARCHAR" property="schFlag"></result>
+		<!-- 是否住校 -->
+		<result column="DORM_FLAG" jdbcType="VARCHAR" property="dormFlag"></result>
+		<!-- 学籍生效日期 -->
+		<result column="SCH_DATE" jdbcType="VARCHAR" property="schDate"></result>
+		<!-- 校区 -->
+		<result column="CMPS_NAME" jdbcType="VARCHAR" property="cmpsName"></result>
+		<!-- 中队名称 -->
+		<result column="SQDN_NAME" jdbcType="VARCHAR" property="sqdnName"></result>
+		<!-- 是否留学 -->
+		<result column="FGN_FLAG" jdbcType="VARCHAR" property="fgnFlag"></result>
+	</resultMap>
+
+	<!--学生Id与姓名表映射-->
+	<resultMap id="IdListDTO" type="com.hzsun.zbp.hsstuportrait.model.dto.IdListDTO">
+		<!-- 学号 -->
+		<result column="STU_NO" jdbcType="VARCHAR" property="stuNo"></result>
+		<!-- 姓名 -->
+		<result column="STU_NAME" jdbcType="VARCHAR" property="stuName"></result>
+	</resultMap>
+
+<!--map-->
+
+	<!--获取单个本科生基本信息查询-->
+	<select id="getjbxx" resultMap="JBXXDTO">
+		SELECT STU_NO,STU_NAME,CARD_TYPE,CARD_NO,TO_CHAR( BD_DAY,'YYYY-MM-DD' ) BD_DAY,NATIVE_PLACE,STU_NATION,STU_STATE,STU_POL,BEFORE_NAME,STU_SEX,NAME_PHNTC
+		FROM ${tableName}
+		WHERE STU_NO = '${id}'
+	</select>
+
+	<!--获取单个本科生学籍信息查询-->
+	<select id="getxjxx" resultMap="XJXXDTO">
+		SELECT STU_NO,CLASS_NAME,COLL_NAME,SPEC_NAME,GRADE_NO,UGRD_STATUS STU_STATUS,DVLP_LEVEL,ENTER_MON,STU_TYPE,SCH_FLAG,DORM_FLAG,TO_CHAR( SCH_DATE,'YYYY-MM-DD' ) SCH_DATE,CMPS_NAME,SQDN_NAME
+		FROM ${tableName}
+		WHERE STU_NO = '${id}'
+	</select>
+
+	<!--获取单个本科生结束学业信息查询-->
+	<select id="getjsxy" resultMap="JSXYDTO">
+		SELECT STU_ID,FINISH_SCH_WORK_MON,FINISH_SCH_WORK_YEAR_CODE,FINISH_SCH_WORK_YEAR_REASON,GRAD_CREDT_NO,DEGREE_CREDT_NO,FINISH_SCH_WORK_CREDT_NO,DIVIDE_DIRECT_CODE,TO_CHAR( REISSUE_GRAD_DATE,'YYYY-MM-DD' ) REISSUE_GRAD_DATE,REISSUE_GRAD_REASON,MINOR_DEGREE_CREDT_NO,MINOR_SPEC_CREDT_NO,MINOR_FINISH_SCH_WORK_CREDT_NO
+		FROM ${tableName}
+		WHERE STU_ID = '${id}'
+	</select>
+
+	<!--获取单个本科生学位、学历查询-->
+	<select id="getxwxl" resultMap="XWXLDTO">
+		SELECT STU_NO,TO_CHAR( DEGREE_DAY,'YYYY-MM-DD' ) DEGREE_DAY,DEGREE_CREDT_NO,STUDY_MODEL,TO_CHAR( PLAN_GRAD_DAY,'YYYY-MM-DD' ) PLAN_GRAD_DAY,EDU_SYSTEM
+		FROM ${tableName}
+		WHERE STU_NO = '${id}'
+	</select>
+
+	<!--获取单个本科生家庭通讯方式查询-->
+	<select id="getjttx" resultMap="JTTXDTO">
+		SELECT STU_ID,FAMILY_ZONE,FAMILY_ADDR,FAMILY_POST_CODE,FAMILY_TEL,FAMILY_EMAIL_ADDR
+		FROM ${tableName}
+		WHERE STU_ID = '${id}'
+	</select>
+
+	<!--获取单个本科生家庭成员查询-->
+	<select id="getjtcy" resultMap="JTCYDTO">
+		SELECT STU_ID,STU_NO,TEL_NO,EMAIL_ADDR,NATION_NAME,STU_CTRY,HEALTH_STATUS,RELT_NAME,MEM_NAME,BD_MON,MEM_WORK_UNIT,WORK_NAME,SPEC_WORK,WORK_RANK
+		FROM ${tableName}
+		WHERE STU_NO = '${id}'
+	</select>
+
+	<!--获取单个本科生个人通讯信息查询-->
+	<select id="getgrtx" resultMap="GRTXDTO">
+		SELECT STU_ID,POST_CODE,COMM_ADDR,TEL_NO,MOBILE_NO,FAX_TEL,EMAIL_ADDR,NET_ADDR,IMM_COMM_NO
+		FROM ${tableName}
+		WHERE STU_ID = '${id}'
+	</select>
+
+	<!--获取单个本科生住宿信息查询-->
+	<select id="getxszs" resultMap="XSZSDTO">
+		SELECT STU_ID,CMPS_NAME,BUILD_NAME,BUILD_ROOM_NO,BED_NO,DORM_TEL,TO_CHAR( IN_DAY,'YYYY-MM-DD' ) IN_DAY,TO_CHAR( OUT_DAY,'YYYY-MM-DD' ) OUT_DAY,OUT_SCH_ADDR,HOUSE_TEL,STU_ADDR
+		FROM ${tableName}
+		WHERE STU_NO = '${id}'
+	</select>
+
+	<!--获取单个本科生户口状况查询-->
+	<select id="gethkzk" resultMap="HKZKDTO">
+		SELECT STU_ID,ENTER_HOUSEHOLD_CLASS,HOUSEHOLD_ORIGIN_PLACE_ADDR,HOUSEHOLD_ORIGIN_PRVN,ENTER_HOUSEHOLD_ORIGIN_CLASS,MOVE_IN_FLAG,DEAL_CODE,TO_CHAR( DEAL_DAY,'YYYY-MM-DD' ) DEAL_DAY,HOUSEHOLD_IN_SCH_FLAG,TO_CHAR( MOVE_OUT_DAY,'YYYY-MM-DD' ) MOVE_OUT_DAY
+		FROM ${tableName}
+		WHERE STU_ID = '${id}'
+	</select>
+
+	<!--获取单个本科生来源数据查询-->
+	<select id="getxsly" resultMap="XSLYDTO">
+		SELECT STU_NO,ENTER_MON,EDU_SYSTEM,STUDY_WAY_CODE,STUDY_WAY,STU_ORIGIN,ENTER_WAY_CODE,ENTER_WAY,SRC_ZONE,SCH_NAME
+		FROM ${tableName}
+		WHERE STU_NO = '${id}'
+	</select>
+
+	<!--获取本科生院系所统计信息查询-->
+	<select id="getyxtj" resultMap="YXTJDTO">
+		SELECT COLL_ID,UNIT_ID,DPND_UNIT_NO,UNIT_NAME,SHORT_NAME,STU_NUM
+		FROM (SELECT COLL_ID,UNIT_ID,DPND_UNIT_NO,UNIT_NAME,SHORT_NAME FROM ${tableNameApp} WHERE COLL_ID = '${paramId}' LIMIT 1 OFFSET 0) t1,
+			(SELECT SUM(STU_NUM) STU_NUM FROM ${tableNameD} WHERE COLL_NO = '${paramId}' ) t2
+	</select>
+
+	<!--获取本科生专业统计信息查询-->
+	<select id="getzytj" resultMap="ZYTJDTO">
+		SELECT SPEC_NAME,SUM(STU_NUM)
+		FROM ${tableName}
+		WHERE SPEC_CODE = '${id}'
+	</select>
+
+	<!--获取本科生年级统计信息查询-->
+	<select id="getnjtj" resultMap="NJTJDTO">
+		SELECT GRADE_NAME,SUM(STU_NUM)
+		FROM ${tableName}
+		WHERE grade_no = '${id}'
+	</select>
+
+	<!--获取本科生民族统计信息查询-->
+	<select id="getmztj" resultMap="MZTJDTO">
+		SELECT STU_NATION,SUM(STU_NUM)
+		FROM ${tableName}
+		WHERE NATION_CODE = '${id}'
+		AND DVLP_LEVEL_CODE = '100'
+	</select>
+
+	<!--获取班级本科生基本信息查询-->
+	<select id="getbjtj" resultMap="BJTJDTO">
+		SELECT t1.STU_NO,CARD_TYPE,CARD_NO,TO_CHAR( BD_DAY,'YYYY-MM-DD' ) BD_DAY,NATIVE_PLACE,STU_NATION,STU_STATE,STU_POL,BEFORE_NAME,STU_SEX,SEX_CODE,NAME_PHNTC
+		FROM ${tableNameInfo} t1,${tableNameSch} t2
+		WHERE CLASS_NO = '${id}'
+		AND t1.STU_NO=t2.STU_NO
+		AND UGRD_PGRD_DVLP_LEVEL_CODE = '1'
+	</select>
+
+	<!--获取中队本科生学籍信息查询-->
+	<select id="getzdtj" resultMap="ZDTJDTO">
+		SELECT t1.STU_NO STU_NO,t1.CLASS_NAME CLASS_NAME,t1.COLL_NAME COLL_NAME,t1.SPEC_NAME SPEC_NAME,
+		t1.GRADE_NO GRADE_NO,t1.UGRD_STATUS STU_STATUS,t1.DVLP_LEVEL DVLP_LEVEL,t1.ENTER_MON ENTER_MON,
+		t1.STU_TYPE STU_TYPE,t1.SCH_FLAG SCH_FLAG,t1.DORM_FLAG DORM_FLAG,TO_CHAR( t1.SCH_DATE,'YYYY-MM-DD' ) SCH_DATE,
+		t1.CMPS_NAME CMPS_NAME,t1.SQDN_NAME SQDN_NAME
+		FROM ${tableNameSch} t1,
+			(SELECT STU_NO
+			FROM ${tableNameInst}
+			WHERE SQDN_NO = '${id}') t2
+		WHERE t1.STU_NO=t2.STU_NO
+		AND UGRD_PGRD_DVLP_LEVEL_CODE = '1'
+	</select>
+
+	<!--获取校本科生学籍信息查询-->
+	<select id="getxjtj" resultMap="XJTJDTO">
+		SELECT STU_NO,CLASS_NAME,COLL_NAME,SPEC_NAME,GRADE_NO,UGRD_STATUS STU_STATUS,DVLP_STATUS,ENTER_MON,
+		STU_TYPE,SCH_FLAG,DORM_FLAG,TO_CHAR( SCH_DATE,'YYYY-MM-DD' ) SCH_DATE,CMPS_NAME,SQDN_NAME,FGN_FLAG
+		FROM ${tableName}
+		WHERE UGRD_PGRD_DVLP_LEVEL_CODE = '1'
+	</select>
+
+	<!--获取学生Id与姓名表-->
+	<select id="listIds" resultMap="IdListDTO">
+		select t2.stu_no,t2.stu_name
+		from (select stu_no
+			from ${tableNameSch}
+			where sch_flag='是') t1,${tableNameBase} t2
+		<if test="paramId != null">
+			where t2.stu_no like '%${paramId}%'
+		</if>
+		<if test="paramName != null">
+			where t2.stu_name like '%${paramName}%'
+		</if>
+		and t1.stu_no = t2.stu_no
+	</select>
+
+<!--sql-->
+
+	<!--获取表名-->
+	<select id="getTableName" resultType="java.lang.String">
+        select tablename
+        from pg_tables
+        where schemaname='public'
+        and tablename LIKE '${prefix}%'
+        order by tablename
+        desc limit 1 offset 0
+    </select>
+</mapper>

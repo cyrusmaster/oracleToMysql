@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzsun.zbp.tch.staff.dao.BaseDataDrillDownDAO">
+
+    <!--学历学位信息详情映射-->
+    <resultMap id="FacultyDrillDownWorkEducationDTO" type="com.hzsun.zbp.tch.staff.model.dto.BaseDataDrillDownEduDTO">
+        <!-- 教师姓名 -->
+        <result column="staff_name" jdbcType="VARCHAR" property="staffName"></result>
+        <!-- 最高学位 -->
+        <result column="highest_degree_name" jdbcType="VARCHAR" property="highestDegreeName"></result>
+        <!-- 最高学位取得时间 -->
+        <result column="graduate_mon" jdbcType="VARCHAR" property="graduateMon"></result>
+        <!-- 职称级别 -->
+        <result column="staff_title_rank_name" jdbcType="VARCHAR" property="staffTitleRankName"></result>
+        <!-- 所属单位 -->
+        <result column="unit_name" jdbcType="VARCHAR" property="unitName"></result>
+        <!-- 总数 -->
+        <result column="total" jdbcType="VARCHAR" property="total"></result>
+    </resultMap>
+
+    <!--年龄基本信息详情映射-->
+    <resultMap id="FacultyDrillDownWorkAgeDTO" type="com.hzsun.zbp.tch.staff.model.dto.BaseDataDrillDownAgeDTO">
+        <!-- 教师姓名 -->
+        <result column="staff_name" jdbcType="VARCHAR" property="staffName"></result>
+        <!-- 最高学位 -->
+        <result column="highest_degree_name" jdbcType="VARCHAR" property="highestDegreeName"></result>
+        <!-- 出生年月 -->
+        <result column="bd_day" jdbcType="VARCHAR" property="bdDay"></result>
+        <!-- 职称级别 -->
+        <result column="staff_title_rank_name" jdbcType="VARCHAR" property="staffTitleRankName"></result>
+        <!-- 所属单位 -->
+        <result column="unit_name" jdbcType="VARCHAR" property="unitName"></result>
+        <!-- 总数 -->
+        <result column="total" jdbcType="VARCHAR" property="total"></result>
+    </resultMap>
+
+    <!--职称基本信息详情映射-->
+    <resultMap id="FacultyDrillDownTitleDTO" type="com.hzsun.zbp.tch.staff.model.dto.BaseDataDrillDownTitleDTO">
+        <!-- 教师姓名 -->
+        <result column="staff_name" jdbcType="VARCHAR" property="staffName"></result>
+        <!-- 职称 -->
+        <result column="title_name" jdbcType="VARCHAR" property="titleName"></result>
+        <!-- 职称级别 -->
+        <result column="staff_title_rank_name" jdbcType="VARCHAR" property="staffTitleRankName"></result>
+        <!-- 所属单位 -->
+        <result column="unit_name" jdbcType="VARCHAR" property="unitName"></result>
+        <!-- 总数 -->
+        <result column="total" jdbcType="VARCHAR" property="total"></result>
+    </resultMap>
+
+    <!--学缘基本信息详情映射-->
+    <resultMap id="FacultyDrillDownLearnDTO" type="com.hzsun.zbp.tch.staff.model.dto.BaseDataDrillDownLearnDTO">
+        <!-- 教师姓名 -->
+        <result column="staff_name" jdbcType="VARCHAR" property="staffName"></result>
+        <!-- 毕业学校 -->
+        <result column="highest_degree_name" jdbcType="VARCHAR" property="highestDegreeName"></result>
+        <!-- 毕业时间 -->
+        <result column="graduate_mon" jdbcType="VARCHAR" property="graduateMon"></result>
+        <!-- 所属单位 -->
+        <result column="unit_name" jdbcType="VARCHAR" property="unitName"></result>
+        <!-- 职称级别 -->
+        <result column="staff_title_rank_name" jdbcType="VARCHAR" property="staffTitleRankName"></result>
+        <!-- 总数 -->
+        <result column="total" jdbcType="VARCHAR" property="total"></result>
+    </resultMap>
+
+    <!--map-->
+
+    <!--获取学历学位信息详情-->
+    <select id="listEducation" resultMap="FacultyDrillDownWorkEducationDTO">
+        select *, count(*) over () total
+        from (select distinct a.unit_no,a.staff_no,a.staff_name, a.top_edu_bg_code, b.staff_title_rank_name, c.unit_name,
+        a.highest_degree_name
+        from (select *
+        from ${tableNameA}
+        where status_code = '11'
+        and psnl_category = '01'
+        <if test="type!=null and type!=''">
+            and top_edu_bg_code in ('${type}')
+        </if>
+        ) as a
+        left join
+        ${tableNameB} as b
+        on a.staff_no = b.staff_no
+        left join
+        ${tableNameC} as c
+        on a.unit_no = c.unit_no) tmp
+        order by unit_no desc,staff_title_rank_name asc,top_edu_bg_code asc
+        limit #{pageQO.offset} offset #{pageQO.limit}
+    </select>
+
+    <!--获取年龄基本信息详情-->
+    <select id="listAgeInfo" resultMap="FacultyDrillDownWorkAgeDTO">
+        select *, count(*) over () total
+        from (
+                 select distinct a.unit_no,
+                                 a.staff_name            staff_name,
+                                 a.highest_degree_name   highest_degree_name,
+                                 bd_day,
+                                 b.staff_title_rank_name staff_title_rank_name,
+                                 c.unit_name             unit_name
+                 from (select *
+                       from ${tableNameA}
+                       where status_code = '11'
+                         and psnl_category = '01'
+                         and staff_age between #{min} and #{max}
+                      ) as a
+                          left join ${tableNameB} as b on a.staff_no = b.staff_no
+                          left join ${tableNameC} as c on a.unit_no = c.unit_no
+
+             ) tmp
+        order by unit_no desc,bd_day asc
+        limit #{pageQO.offset} offset #{pageQO.limit}
+    </select>
+
+    <!--获取职称基本信息详情-->
+    <select id="listTitle" resultMap="FacultyDrillDownTitleDTO">
+        select a.staff_name,b.title_name,b.staff_title_rank_name,c.unit_name,count(*) over() total
+        from ${tableNameA} as a
+        left join ${tableNameB} as b
+        on a.staff_no=b.staff_no
+        left join ${tableNameC} as c
+        on a.unit_no=c.unit_no
+        where a.psnl_category='01'
+        and a.status_name='在职'
+        and b.work_class_code='11'
+        <if test="type != null and type !='' ">
+            and b.staff_title_rank_name = '${type}'
+        </if>
+        order by c.unit_no desc,b.staff_title_rank_name asc
+        limit #{pageQO.offset} offset #{pageQO.limit}
+    </select>
+
+    <!--获取学缘基本信息详情-->
+    <select id="listLearn" resultMap="FacultyDrillDownLearnDTO">
+        select t1.staff_name staff_name, t1.highest_degree_name highest_degree_name, t2.title_name title_name, t2.staff_title_rank_name , t1.unit_name unit_name,count(1) over() total
+        from
+        (select staff_no, staff_name, highest_degree_name, unit_name from ${tableNameA}
+        where status_code='11'
+        and psnl_category='01'
+        <if test="type ==''">
+            and acad_stru_code in ('20','30', '40')
+        </if>
+        <if test="type !=''">
+            and acad_stru_code in ('30', '40')
+        </if>
+        ) t1
+        inner join
+        (select distinct staff_no, title_name, staff_title_rank_name,staff_title_rank_code from ${tableNameB}) t2
+        on t1.staff_no = t2.staff_no
+        order by unit_name,nullif(staff_title_rank_code,'') asc,staff_name asc
+        limit #{pageQO.offset} offset #{pageQO.limit}
+    </select>
+
+    <!--sql-->
+
+    <!--获取表名-->
+    <select id="getTableName" resultType="java.lang.String">
+        select tablename
+        from pg_tables
+        where schemaname='public'
+        and tablename like '${prefix}%'
+        order by tablename desc
+        limit 1 offset 0
+    </select>
+
+</mapper>
