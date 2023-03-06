@@ -1,6 +1,7 @@
 package cn.cyrus.otm.service.impl;
 import cn.cyrus.otm.service.CommitService;
 import com.alibaba.druid.sql.SQLUtils;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +16,7 @@ import java.util.Stack;
 
 
 @Service
+@Slf4j
 public class CommitServiceImpl implements CommitService {
 
 	//
@@ -437,52 +439,92 @@ public class CommitServiceImpl implements CommitService {
 
 	public static void main(String[] args) {
 
-		//String s = "select substr(DATA_MONTH, 5, 2) || '月' as xAxisName,";
-		//String[] split = s.split(" ");
-		//
-		//String[] test = {"1","","3","8"};
-		//String[] strings = removeElement(test, 3);
-		//for (int i = 0; i < strings.length; i++) {
-		//	System.out.println(strings[i]);
-		//}
 
-		//System.out.println(replace("'第'||to_char(to_date(DAT||A_MONTH,'yyyymm'),'q')||'季度'"));
+		File sourceFile = new File("src/main/resources/in/SubjDevMapper.xml");
+		File sinkFile = new File("src/main/resources/out/SubjDevMapper.xml");
+		//modifySingleFile(sourceFile,sinkFile);
 
-		//System.out.println(replaceVerticalBar("'第'||to_char(to_date(DATA_MONTH,'yyyymm'),'q')||'季度'"));
+
+		// content root / absolute path
+		File dir = new File("src/main/resources/mapper");
+		modifyDirFile(dir);
 
 
 
+	}
 
+
+	private static void modifyDirFile(File dir){
+		File[] files = dir.listFiles();
+		BufferedReader br = null;
+		BufferedWriter bw = null;
+		String s;
 		try {
-            File sourceFile = new File("src/main/resources/in/SubjDevMapper.xml");
-            File sinkFile = new File("src/main/resources/out/SubjDevMapper.xml");
-            BufferedReader br = new BufferedReader(new FileReader(sourceFile));
-            ArrayList<String> strings = new ArrayList<String>();
-            String s;//读取的每一行数据
-            //br.re
-            while ((s=br.readLine()) != null){
-            	// 替换行操作
-                //if (s.contains("a.item_num AS itemNum,")) {
-                //    s = s.replace("a.item_num AS itemNum,", "test");
-                //}
 
-                CommitService commitService = new CommitServiceImpl();
+			for (File file : files){
+				if (file.length() != 0){
+					System.out.println("file.getName() = " + file.getName());
+					br = new BufferedReader(new FileReader(file));
+					ArrayList<String> strings = new ArrayList<String>();
+					s=br.readLine();
+					while (s != null){
+						CommitService commitService = new CommitServiceImpl();
+						s = commitService.changeSql(s,0);
+						strings.add(s);//将数据存入集合
+					}
+					bw = new BufferedWriter(new FileWriter(file));
+					for (String string : strings) {
+						bw.write(string);//一行一行写入数据
+						bw.newLine();//换行
+					}
+				}
+			}
+
+		}catch (Exception e) {
+			e.printStackTrace();
+			log.error("文件夹路径有误");
+		}finally {
+			if (br != null && bw != null){
+				try {
+					br.close();
+					bw.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+
+	}
+
+
+	/**
+	 * REMARK  单一文件替换
+	 * @methodName   modifySingleFile
+	 * @return void
+	 * @date 2023/3/6 10:39
+	 * @author cyf
+	 */
+	public static void modifySingleFile(File source,File sink){
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(source));
+			ArrayList<String> strings = new ArrayList<String>();
+			String s;//读取的每一行数据
+			//br.re
+			while ((s=br.readLine()) != null){
+				CommitService commitService = new CommitServiceImpl();
 				s = commitService.changeSql(s,0);
-
 				strings.add(s);//将数据存入集合
-            }
-            BufferedWriter bw = new BufferedWriter(new FileWriter(sinkFile));
-            for (String string : strings) {
-                bw.write(string);//一行一行写入数据
-                bw.newLine();//换行
-            }
-            bw.close();
+			}
+			BufferedWriter bw = new BufferedWriter(new FileWriter(sink));
+			for (String string : strings) {
+				bw.write(string);//一行一行写入数据
+				bw.newLine();//换行
+			}
+			bw.close();
         }catch (Exception e){
-
+			e.printStackTrace();
         }
-
-
-
 	}
 
 
