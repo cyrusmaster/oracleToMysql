@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.hzsun.bigdata.sci.dao.CommonDao"> 
+ 
+    <!--通过表名前缀查询最新最新日期的表名--> 
+    <!--有使用 待修改--> 
+    <select id="findLatestTableByPrefix" resultType="java.lang.String"> 
+        select TABLE_NAME from user_tables 
+        where table_name like CONCAT(#{table},'%') 
+        and trim(translate(substr(table_name,-4,4),'0123456789.',' ')) is null 
+        ORDER BY TABLE_NAME DESC 
+        limit  0,1 
+    </select> 
+ 
+    <!--通过表名前缀和年份查询最新最新日期的日表表名--> 
+    <!--有使用 待修改--> 
+    <select id="findLatestDayTableByYear" resultType="java.lang.String"> 
+        select TABLE_NAME from user_tables where table_name like CONCAT(#{table},'%') 
+        and substr(table_name,-8,4) = #{year} 
+        ORDER BY TABLE_NAME DESC 
+        limit  0,1 
+    </select> 
+ 
+    <!--通过表名前缀和年份查询最新最新日期的月表表名--> 
+    <!--有使用 待修改 月表查最新年TDWB_SCI_SCI_ITEM_FUND_INFO_M_ --> 
+    <select id="findLatestMonTableByYear" resultType="java.lang.String"> 
+        select TABLE_NAME from user_tables where table_name like CONCAT(#{table},'%') 
+        and substr(table_name,-6,4) = #{year} 
+        ORDER BY TABLE_NAME DESC 
+        limit  0,1 
+    </select> 
+ 
+    <!--通过表名前缀和年份查询最新最新日期的年表表名--> 
+    <!--有使用  年表 TDWB_SCI_SUBJ_SCI_HOT_WORD_INFO_Y_2022--> 
+    <select id="findLatestYearTableByYear" resultType="java.lang.String"> 
+        select TABLE_NAME from user_tables where table_name like CONCAT(#{table},'%') 
+        and substr(table_name,-4,4) = #{year} 
+        ORDER BY TABLE_NAME DESC 
+        limit  0,1 
+    </select> 
+ 
+    <!--通过表名前缀、年份、月份查询最新最新日期的日表表名--> 
+    <select id="findLatestDayTableByYearMonth" resultType="java.lang.String"> 
+        select TABLE_NAME from user_tables where table_name like CONCAT(#{table},'%') 
+        and substr(table_name,-8,4) = #{year} 
+        and substr(table_name,-4,2) = #{month} 
+        ORDER BY TABLE_NAME DESC 
+        limit  0,1 
+    </select> 
+ 
+    <!--通过表名前缀、年份、月份查询最新最新日期的月表表名--> 
+    <select id="findLatestMonTableByYearMonth" resultType="java.lang.String"> 
+        select TABLE_NAME from user_tables where table_name like CONCAT(#{table},'%') 
+        and substr(table_name,-6,4) = #{year} 
+        and substr(table_name,-2,2) = #{month} 
+        ORDER BY TABLE_NAME DESC 
+        limit  0,1 
+    </select> 
+ 
+    <!--获取维表类信息（第一层）--> 
+    <select id="getDimClassFirst" resultType="com.hzsun.bigdata.sci.model.dto.DimClassDTO"> 
+        select DIM_CLASS as dimClass, 
+               DIM_NAME as dimName, 
+               SUM_LAYER as sumLayer, 
+               DIM_VALUE as dimValue, 
+               DIM_LAYER as dimLayer, 
+               PREV_DIM_VALUE as prevDimValue 
+        from tpub_dim_class 
+        where DIM_CLASS = #{dimClass} and PREV_DIM_VALUE is null 
+        order by DIM_VALUE asc 
+    </select> 
+ 
+    <!--获取维表类信息（根据前一级维度值）--> 
+    <select id="getDimClassWithPre" resultType="com.hzsun.bigdata.sci.model.dto.DimClassDTO"> 
+        select DIM_CLASS as dimClass, 
+               DIM_NAME as dimName, 
+               SUM_LAYER as sumLayer, 
+               DIM_VALUE as dimValue, 
+               DIM_LAYER as dimLayer, 
+               PREV_DIM_VALUE as prevDimValue 
+        from tpub_dim_class 
+        where DIM_CLASS = #{dimClass} and PREV_DIM_VALUE = #{preValue} 
+        order by DIM_VALUE asc 
+    </select> 
+ 
+    <!--获取维表类信息（根据前一级维度值）--> 
+    <select id="getDimClassWithLayer" resultType="com.hzsun.bigdata.sci.model.dto.DimClassDTO"> 
+        select DIM_CLASS as dimClass, 
+               DIM_NAME as dimName, 
+               SUM_LAYER as sumLayer, 
+               DIM_VALUE as dimValue, 
+               DIM_LAYER as dimLayer, 
+               PREV_DIM_VALUE as prevDimValue 
+        from tpub_dim_class 
+        where DIM_CLASS = #{dimClass} and DIM_LAYER = #{layer} 
+        order by DIM_VALUE asc 
+    </select> 
+ 
+    <!--获取学院列表--> 
+    <select id="getCollege" resultType="com.hzsun.bigdata.sci.model.dto.CollegeMsgDTO"> 
+        select unit_no as unitNo,unit_name as unitName from 
+        ${unitTableName} 
+        where UNIT_CLS_CODE = 
+        (select DIM_VALUE from tpub_dim_class 
+                where DIM_CLASS = 'edu_sch_unit_cls' and dim_name =  '教学院系') 
+    </select> 
+ 
+    <!--获取课题类型--> 
+    <select id="getItemClass" resultType="com.hzsun.bigdata.sci.model.dto.ItemClassDTO"> 
+        select distinct dpnd_topic as itemClassCode,dpnd_topic as itemClassName 
+        from ${itemTableName} 
+    </select> 
+ 
+    <!--模糊查询教师信息--> 
+    <select id="getTeachMsg" resultType="com.hzsun.bigdata.sci.model.dto.TeacherMsgDTO"> 
+        select staff_no as staffNo,staff_name as staffName 
+        from ${tableName} 
+        <if test="staffName != null and staffName != '' "> 
+            where staff_name like CONCAT(  '%' , #{staffName} , '%' ) 
+        </if> 
+    </select> 
+</mapper> 

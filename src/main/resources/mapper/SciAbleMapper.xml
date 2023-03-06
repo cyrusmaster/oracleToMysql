@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.hzsun.bigdata.sci.dao.SciAbleDao"> 
+    <!--科研平台--> 
+    <select id="getSciPlatForm" resultType="com.hzsun.bigdata.sci.model.dto.SciAbleCommonDTO"> 
+SELECT 'keySubj' AS type, '学科点数量' AS typeName, key_subj_num AS typeNum, key_subj_before_num AS lastNum, key_subj_chge_value AS moreLastNum 
+	, ROUND(CASE IFNULL(key_subj_before_num, 0) 
+		WHEN 0 THEN 0 
+		ELSE key_subj_chge_value / key_subj_before_num 
+	END, 2) * 100 AS moreLastRate 
+	, sim_sch_key_subj_avg_value AS avgNum, key_subj_num - sim_sch_key_subj_avg_value AS moreAvgNum 
+	, ROUND(CASE IFNULL(sim_sch_key_subj_avg_value, 0) 
+		WHEN 0 THEN 0 
+		ELSE (key_subj_num - sim_sch_key_subj_avg_value) / sim_sch_key_subj_avg_value 
+	END, 2) * 100 AS moreAvgRate 
+FROM ${tableName} 
+WHERE data_year = #{year} 
+	AND this_school = 1 
+UNION ALL 
+SELECT 'phd' AS type, '一级博士点' AS typeName, phd_key_num AS typeNum, phd_key_before_num AS lastNum, phd_key_chge_value AS moreLastNum 
+	, ROUND(CASE IFNULL(phd_key_before_num, 0) 
+		WHEN 0 THEN 0 
+		ELSE phd_key_chge_value / phd_key_before_num 
+	END, 2) * 100 AS moreLastRate 
+	, sim_sch_phd_key_avg_value AS avgNum, phd_key_num - sim_sch_phd_key_avg_value AS moreAvgNum 
+	, ROUND(CASE IFNULL(sim_sch_phd_key_avg_value, 0) 
+		WHEN 0 THEN 0 
+		ELSE (phd_key_num - sim_sch_phd_key_avg_value) / sim_sch_phd_key_avg_value 
+	END, 2) * 100 AS moreAvgRate 
+FROM ${tableName} 
+WHERE data_year = #{year} 
+	AND this_school = 1 
+UNION ALL 
+SELECT 'master' AS type, '一级硕士点' AS typeName, master_key_num AS typeNum, master_key_before_num AS lastNum, master_key_chge_value AS moreLastNum 
+	, ROUND(CASE IFNULL(master_key_before_num, 0) 
+		WHEN 0 THEN 0 
+		ELSE master_key_chge_value / master_key_before_num 
+	END, 2) * 100 AS moreLastRate 
+	, sim_sch_master_key_avg_value AS avgNum, master_key_num - sim_sch_master_key_avg_value AS moreAvgNum 
+	, ROUND(CASE IFNULL(sim_sch_master_key_avg_value, 0) 
+		WHEN 0 THEN 0 
+		ELSE (master_key_num - sim_sch_master_key_avg_value) / sim_sch_master_key_avg_value 
+	END, 2) * 100 AS moreAvgRate 
+FROM ${tableName} 
+WHERE data_year = #{year} 
+	AND this_school = 1 
+    </select> 
+ 
+    <!--人才资源--> 
+    <select id="getHumanSrc" resultType="com.hzsun.bigdata.sci.model.dto.SciAbleCommonDTO"> 
+        select 
+        'acadmcn' as type, 
+        '双聘院士' as typeName, 
+        cas_acadmcn_num + cae_acadmcn_num as typeNum, 
+        cas_acadmcn_incre_num + cae_acadmcn_incre_num as moreLastNum, 
+        cas_acadmcn_num + cae_acadmcn_num - sim_sch_cas_acadmcn_avg_num - sim_sch_cae_acadmcn_avg_num 
+        as moreAvgNum 
+        from ${tableName} 
+        where data_year = #{year} and this_school = 1 
+        UNION ALL 
+        select 
+        'thsd' as type, 
+        '千人计划' as typeName, 
+        ten_thsd_plan_num as typeNum, 
+        ten_thsd_plan_incre_num as moreLastNum, 
+        ten_thsd_plan_num - sim_sch_ten_thsd_plan_avg_num as moreAvgNum 
+        from ${tableName} 
+        where data_year = #{year} and this_school = 1 
+        UNION ALL 
+        select 
+        'cj' as type, 
+        '长江学者' as typeName, 
+        cj_schol_num as typeNum, 
+        cj_schol_incre_num as moreLastNum, 
+        cj_schol_num - sim_sch_cj_schol_avg_num as moreAvgNum 
+        from ${tableName} 
+        where data_year = #{year} and this_school = 1 
+        UNION ALL 
+        select 
+        'yng' as type, 
+        '国家杰出青年' as typeName, 
+        yng_fund_num as typeNum, 
+        yng_fund_incre_num as moreLastNum, 
+        yng_fund_num - sim_sch_yng_fund_avg_num as moreAvgNum 
+        from ${tableName} 
+        where data_year = #{year} and this_school = 1 
+    </select> 
+ 
+    <!--对标同类型高校学科图表--> 
+    <select id="subjCompareDraw" resultType="com.hzsun.bigdata.sci.model.dto.DrawDTO"> 
+        select sch_name as xAxisName,'论文' as yAxisItem,paper_num as yAxisValue 
+        from ${tableName} 
+        where data_year = #{year} and subj_class_code = #{sciNo} 
+        UNION ALL 
+        select sch_name as xAxisName,'专利' as yAxisItem,patent_num as yAxisValue 
+        from ${tableName} 
+        where data_year = #{year} and subj_class_code = #{sciNo} 
+        UNION ALL 
+        select sch_name as xAxisName,'成果' as yAxisItem,achv_num as yAxisValue 
+        from ${tableName} 
+        where data_year = #{year} and subj_class_code = #{sciNo} 
+    </select> 
+ 
+    <!--综合对比--> 
+    <select id="getFixCompare" resultType="com.hzsun.bigdata.sci.model.dto.SciAbleCommonDTO"> 
+SELECT 'sciFund' AS type, '国家自然科学基金奖次数' AS typeName, sci_fund_cnt AS typeNum, sim_sch_sci_fund_avg_cnt AS avgNum 
+	, sci_fund_cnt - sim_sch_sci_fund_avg_cnt AS moreAvgNum 
+	, ROUND(CASE IFNULL(sim_sch_sci_fund_avg_cnt, 0) 
+		WHEN 0 THEN 0 
+		ELSE (sci_fund_cnt - sim_sch_sci_fund_avg_cnt) / sim_sch_sci_fund_avg_cnt 
+	END, 2) * 100 AS moreAvgRate 
+FROM ${tableName} 
+WHERE data_year = #{year} 
+	AND this_school = 1 
+	AND subj_class_code = #{sciNo} 
+UNION ALL 
+SELECT 'sciPaper' AS type, 'sci收录论文篇数' AS typeName, sci_paper_num AS typeNum, sim_sch_sci_paper_num AS avgNum 
+	, sci_paper_num - sim_sch_sci_paper_num AS moreAvgNum 
+	, ROUND(CASE IFNULL(sim_sch_sci_paper_num, 0) 
+		WHEN 0 THEN 0 
+		ELSE (sci_paper_num - sim_sch_sci_paper_num) / sim_sch_sci_paper_num 
+	END, 2) * 100 AS moreAvgRate 
+FROM ${tableName} 
+WHERE data_year = #{year} 
+	AND this_school = 1 
+	AND subj_class_code = #{sciNo} 
+UNION ALL 
+SELECT 'eiPaper' AS type, 'ei收录论文篇数' AS typeName, ei_paper_num AS typeNum, sim_sch_ei_paper_num AS avgNum 
+	, ei_paper_num - sim_sch_ei_paper_num AS moreAvgNum 
+	, ROUND(CASE IFNULL(sim_sch_ei_paper_num, 0) 
+		WHEN 0 THEN 0 
+		ELSE (ei_paper_num - sim_sch_ei_paper_num) / sim_sch_ei_paper_num 
+	END, 2) * 100 AS moreAvgRate 
+FROM ${tableName} 
+WHERE data_year = #{year} 
+	AND this_school = 1 
+	AND subj_class_code = #{sciNo} 
+    </select> 
+ 
+    <!--其他学校明细--> 
+    <select id="getSchDetail" resultType="com.hzsun.bigdata.sci.model.dto.SciSchDetailDTO"> 
+        select 
+        sch_code as schNo, 
+        sch_name as schName, 
+        subj_class_name as subjClassName, 
+        sci_fund_cnt as sciFundCnt, 
+        sci_paper_num as sciPaperNum, 
+        ei_paper_num as eiPaperNum 
+        from ${tableName} 
+        where data_year = #{year} and this_school = 2 and subj_class_code = #{sciNo} 
+        limit #{limit} ,#{offset} 
+    </select> 
+ 
+    <!--其他学校明细--> 
+    <select id="getSchDetailCount" resultType="java.lang.Integer"> 
+        select 
+        count(1) 
+        from ${tableName} 
+        where data_year = #{year} and this_school = 2 and subj_class_code = #{sciNo} 
+    </select> 
+</mapper> 

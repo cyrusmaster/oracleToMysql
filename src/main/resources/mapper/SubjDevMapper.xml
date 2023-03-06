@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.hzsun.bigdata.sci.dao.SubjDevDao"> 
+ 
+    <!--学科 核心指标总体概况--> 
+    <select id="getGeneralCoreIndexBySubj" resultType="com.hzsun.bigdata.sci.model.dto.GeneralCoreIndexDTO"> 
+        SELECT 
+            a.item_num AS itemNum, 
+            b.staff_num AS staffNum, 
+            ROUND(b.ugrd_num/10000,2) AS ugrdNum, 
+            b.pgrd_num AS pgrdNum, 
+            c.paper_num AS paperNum, 
+            c.tech_work_num AS workNum, 
+            c.win_achv_num AS awardNum, 
+            ROUND((d.hori_appro_fee + d.vertical_appro_fee)/10000,2) AS totalSciFee 
+        FROM 
+            tapp_sci_subj_item_stat_y a, 
+            tapp_sci_subj_psnl_stat_m b, 
+            tapp_sci_subj_sci_tech_achv_stat_y c, 
+            tapp_sci_subj_way_appro_fee_stat_y d 
+        WHERE 
+            a.data_year = c.data_year 
+            AND c.data_year = d.data_year 
+            AND a.data_year = #{year} 
+            AND a.subj_class_code = b.subj_class_code 
+            AND b.subj_class_code = c.subj_class_code 
+            AND c.subj_class_code = d.subj_class_code 
+            AND a.subj_class_code = #{subjNo} 
+            and b.data_month = (select max(data_month) from tapp_sci_subj_psnl_stat_m) 
+    </select> 
+ 
+    <!--学科 科研横向项目数量统计--> 
+    <select id="getCountProjectHBySubjDraw" resultType="com.hzsun.bigdata.sci.model.dto.DrawDTO"> 
+        <if test="type == 0"> 
+            select * from (select CONCAT(data_year,'年') as xAxisName, '全部' as yAxisItem, hori_item_num as yAxisValue 
+            from tapp_sci_subj_item_stat_y 
+            where subj_class_code = #{subjNo} and data_year > #{year} 
+            UNION ALL 
+            select CONCAT(data_year,'年') as xAxisName, '百万以上' as yAxisItem, hori_million_item_num as yAxisValue 
+            from tapp_sci_subj_item_stat_y 
+            where subj_class_code = #{subjNo} and data_year > #{year}) 
+            order by xAxisName asc 
+        </if> 
+        <if test="type == 1"> 
+            select * from ( select CONCAT('第',QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m')),'季度') as xAxisName, '全部' as yAxisItem, 
+            sum(hori_item_num) as yAxisValue 
+            from tapp_sci_subj_item_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year} 
+            group by QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m')) 
+            UNION ALL 
+            select CONCAT('第',QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m')),'季度') as xAxisName, '百万以上' as yAxisItem, 
+            sum(hori_million_item_num) as yAxisValue 
+            from tapp_sci_subj_item_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year} 
+            group by QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m'))) 
+            order by xAxisName asc 
+        </if> 
+        <if test="type == 2"> 
+            select * from ( 
+            select CONCAT(substr(DATA_MONTH,5,2),'月') as xAxisName, '全部' as yAxisItem, hori_item_num as yAxisValue 
+            from tapp_sci_subj_item_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year} 
+            UNION ALL 
+            select CONCAT(substr(DATA_MONTH,5,2),'月') as xAxisName, '百万以上' as yAxisItem, hori_million_item_num as yAxisValue 
+            from tapp_sci_subj_item_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year}) 
+            order by xAxisName 
+        </if> 
+    </select> 
+ 
+    <!--学科 科研纵向项目数量统计--> 
+    <select id="getCountProjectVBySubjDraw" resultType="com.hzsun.bigdata.sci.model.dto.DrawDTO"> 
+        <if test="type == 0"> 
+            select * from ( 
+            select CONCAT(data_year,'年') as xAxisName, '全部' as yAxisItem, vertical_item_num as yAxisValue 
+            from tapp_sci_subj_item_stat_y 
+            where subj_class_code = #{subjNo} and data_year > #{year} 
+            UNION ALL 
+            select CONCAT(data_year,'年') as xAxisName, '国家自然奖学基金' as yAxisItem, vertical_nfsc_item_num as yAxisValue 
+            from tapp_sci_subj_item_stat_y 
+            where subj_class_code = #{subjNo} and data_year > #{year}) 
+            order by xAxisName 
+        </if> 
+        <if test="type == 1"> 
+            select * from ( 
+            select CONCAT('第',QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m')),'季度') as xAxisName, '全部' as yAxisItem, 
+            sum(vertical_item_num) as yAxisValue 
+            from tapp_sci_subj_item_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year} 
+            group by QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m')) 
+            UNION ALL 
+            select CONCAT('第',QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m')),'季度') as xAxisName, '国家自然奖学基金' as yAxisItem, 
+            sum(vertical_nfsc_item_num) as yAxisValue 
+            from tapp_sci_subj_item_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year} 
+            group by QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m'))) 
+            order by xAxisName 
+        </if> 
+        <if test="type == 2"> 
+            select * from ( 
+            select CONCAT(substr(DATA_MONTH,5,2),'月') as xAxisName, '全部' as yAxisItem, 
+            vertical_item_num as yAxisValue 
+            from tapp_sci_subj_item_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year} 
+            UNION ALL 
+            select CONCAT(substr(DATA_MONTH,5,2),'月') as xAxisName, '国家自然奖学基金' as yAxisItem, 
+            vertical_nfsc_item_num as yAxisValue 
+            from tapp_sci_subj_item_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year}) 
+            order by xAxisName 
+        </if> 
+    </select> 
+ 
+    <!--学科 科研成果数量统计--> 
+    <select id="getSciAchievementBySubjDraw" resultType="com.hzsun.bigdata.sci.model.dto.DrawDTO"> 
+        <if test="type == 0"> 
+            select * from ( 
+            select CONCAT(data_year,'年') as xAxisName, '论文' as yAxisItem, paper_num as yAxisValue 
+            from tapp_sci_subj_sci_tech_achv_stat_y 
+            where subj_class_code = #{subjNo} and data_year > #{year} 
+            UNION ALL 
+            select CONCAT(data_year,'年') as xAxisName, '专利' as yAxisItem, patent_achv_num as yAxisValue 
+            from tapp_sci_subj_sci_tech_achv_stat_y 
+            where subj_class_code = #{subjNo} and data_year > #{year} 
+            UNION ALL 
+            select CONCAT(data_year,'年') as xAxisName, '出版著作' as yAxisItem, tech_work_num as yAxisValue 
+            from tapp_sci_subj_sci_tech_achv_stat_y 
+            where subj_class_code = #{subjNo} and data_year > #{year} 
+            UNION ALL 
+            select CONCAT(data_year,'年') as xAxisName, '艺术作品' as yAxisItem, art_work_num as yAxisValue 
+            from tapp_sci_subj_sci_tech_achv_stat_y 
+            where subj_class_code = #{subjNo} and data_year > #{year}) 
+            order by xAxisName 
+        </if> 
+        <if test="type == 1"> 
+            select * from ( 
+            select CONCAT('第',QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m')),'季度') as xAxisName, '论文' as yAxisItem, 
+            sum(paper_num) as yAxisValue 
+            from tapp_sci_subj_sci_tech_achv_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year} 
+            group by QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m')) 
+            UNION ALL 
+            select CONCAT('第',QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m')),'季度') as xAxisName, '专利' as yAxisItem, 
+            sum(patent_achv_num) as yAxisValue 
+            from tapp_sci_subj_sci_tech_achv_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year} 
+            group by QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m')) 
+            UNION ALL 
+            select CONCAT('第',QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m')),'季度') as xAxisName, '出版著作' as yAxisItem, 
+            sum(tech_work_num) as yAxisValue 
+            from tapp_sci_subj_sci_tech_achv_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year} 
+            group by QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m')) 
+            UNION ALL 
+            select CONCAT('第',QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m')),'季度') as xAxisName, '艺术作品' as yAxisItem, 
+            sum(art_work_num) as yAxisValue 
+            from tapp_sci_subj_sci_tech_achv_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year} 
+            group by QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m'))) 
+            order by xAxisName 
+        </if> 
+        <if test="type == 2"> 
+            select * from ( 
+            select CONCAT(substr(DATA_MONTH,5,2),'月') as xAxisName, '论文' as yAxisItem, paper_num as yAxisValue 
+            from tapp_sci_subj_sci_tech_achv_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year} 
+            UNION ALL 
+            select CONCAT(substr(DATA_MONTH,5,2),'月') as xAxisName, '专利' as yAxisItem, patent_achv_num as yAxisValue 
+            from tapp_sci_subj_sci_tech_achv_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year} 
+            UNION ALL 
+            select CONCAT(substr(DATA_MONTH,5,2),'月') as xAxisName, '出版著作' as yAxisItem, tech_work_num as yAxisValue 
+            from tapp_sci_subj_sci_tech_achv_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year} 
+            UNION ALL 
+            select CONCAT(substr(DATA_MONTH,5,2),'月') as xAxisName, '艺术作品' as yAxisItem, art_work_num as yAxisValue 
+            from tapp_sci_subj_sci_tech_achv_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year}) 
+            order by xAxisName 
+        </if> 
+    </select> 
+ 
+    <!--学科 科研成果等级分布--> 
+    <select id="getSciLevelBySubjDraw" resultType="com.hzsun.bigdata.sci.model.dto.DrawDTO"> 
+        select * from ( 
+        select 
+        tech_achv_lv_name as xAxisName, 
+        <if test="type == 0">vertical_item_num</if> 
+        <if test="type == 1">paper_num</if> 
+        <if test="type == 2">win_achv_num</if> 
+        <if test="type == 3">tech_work_num</if> 
+        <if test="type == 4">patent_achv_num</if> 
+        <if test="type == 5">com_soft_copr_cert_num</if> 
+        <if test="type == 6">art_work_num</if> 
+        <if test="type == 7">report_num</if> 
+        as yAxisValue, 
+        subj_class_name as yAxisItem 
+        from tapp_sci_subj_sci_tech_achv_lv_stat_y 
+        where subj_class_code = #{subjNo} 
+        and data_year = #{year}) 
+        order by xAxisName 
+    </select> 
+ 
+    <!--学科 科研经费金额统计--> 
+    <select id="getSciFeeBySubjDraw" resultType="com.hzsun.bigdata.sci.model.dto.DrawDTO"> 
+        <if test="type == 0"> 
+            select * from ( 
+            select CONCAT(data_year,'年') as xAxisName, '横向' as yAxisItem, hori_appro_fee as yAxisValue 
+            from tapp_sci_subj_way_appro_fee_stat_y 
+            where subj_class_code = #{subjNo} and data_year > #{year} 
+            UNION ALL 
+            select CONCAT(data_year,'年') as xAxisName, '纵向' as yAxisItem, vertical_appro_fee as yAxisValue 
+            from tapp_sci_subj_way_appro_fee_stat_y 
+            where subj_class_code = #{subjNo} and data_year > #{year} 
+            UNION ALL 
+            select CONCAT(data_year,'年') as xAxisName, '总数' as yAxisItem, hori_appro_fee+vertical_appro_fee as yAxisValue 
+            from tapp_sci_subj_way_appro_fee_stat_y 
+            where subj_class_code = #{subjNo} and data_year > #{year}) 
+            order by xAxisName 
+        </if> 
+        <if test="type == 1"> 
+            select * from ( 
+            select CONCAT('第',QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m')),'季度') as xAxisName, '横向' as yAxisItem, 
+            sum(hori_appro_fee) as yAxisValue 
+            from tapp_sci_subj_way_appro_fee_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year} 
+            group by QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m')) 
+            UNION ALL 
+            select CONCAT('第',QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m')),'季度') as xAxisName, '纵向' as yAxisItem, 
+            sum(vertical_appro_fee) as yAxisValue 
+            from tapp_sci_subj_way_appro_fee_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year} 
+            group by QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m')) 
+            UNION ALL 
+            select CONCAT('第',QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m')),'季度') as xAxisName, '总数' as yAxisItem, 
+            sum(hori_appro_fee+vertical_appro_fee) as yAxisValue 
+            from tapp_sci_subj_way_appro_fee_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year} 
+            group by QUARTER(STR_TO_DATE(DATA_MONTH,'%y%m'))) 
+            order by xAxisName 
+        </if> 
+        <if test="type == 2"> 
+            select * from ( 
+            select CONCAT(substr(DATA_MONTH,5,2),'月') as xAxisName, '横向' as yAxisItem, 
+            hori_appro_fee as yAxisValue 
+            from tapp_sci_subj_way_appro_fee_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year} 
+            UNION ALL 
+            select CONCAT(substr(DATA_MONTH,5,2),'月') as xAxisName, '纵向' as yAxisItem, 
+            vertical_appro_fee as yAxisValue 
+            from tapp_sci_subj_way_appro_fee_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year} 
+            UNION ALL 
+            select CONCAT(substr(DATA_MONTH,5,2),'月') as xAxisName, '总数' as yAxisItem, 
+            hori_appro_fee+vertical_appro_fee as yAxisValue 
+            from tapp_sci_subj_way_appro_fee_stat_m 
+            where subj_class_code = #{subjNo} AND substr(DATA_MONTH,0,4) = #{year}) 
+            order by xAxisName 
+        </if> 
+    </select> 
+ 
+    <!--学科 科研项目经费金额统计明细--> 
+    <select id="getSciFeeBySubjDetail" resultType="com.hzsun.bigdata.sci.model.dto.ItemFundDetailDTO"> 
+        select a.item_no as itemNo, 
+        a.item_name as itemName, 
+        a.start_day as startDay, 
+        a.end_day as endDay, 
+        a.item_leader_staff_name as itemLeaderStaffName, 
+        a.item_class_name as itemClassName, 
+        a.item_rank_name as itemRank, 
+        sum(a.plan_fund_total_fee) as planFundTotalFee , 
+        sum(a.cur_acct_fund_fee) as curAcctFundFee 
+        from ${fundTableName} a 
+        where a.subj_class_code = #{subjNo} 
+        and a.END_DAY >= STR_TO_DATE(#{dateArea.startDate},'%Y-%m-%d') 
+        and  a.END_DAY <= STR_TO_DATE(#{dateArea.endDate},'%Y-%m-%d') 
+        and a.dpnd_topic = #{itemCode} 
+        group by a.item_no,a.item_name,a.start_day,a.end_day,a.item_leader_staff_name,a.item_class_name,a.item_rank_name 
+        LIMIT  ,      
+    </select> 
+ 
+    <!--学科 科研项目经费金额统计明细(计数)--> 
+    <select id="getSciFeeBySubjDetailCount" resultType="java.lang.Integer"> 
+        select 
+        count(1) 
+        from ${fundTableName} a 
+        where a.subj_class_code = #{subjNo} 
+        and a.END_DAY >= STR_TO_DATE(#{dateArea.startDate},'%Y-%m-%d') 
+        and  a.END_DAY <= STR_TO_DATE(#{dateArea.endDate},'%Y-%m-%d') 
+        and a.dpnd_topic = #{itemCode} 
+    </select> 
+ 
+    <!--学院 获奖统计明细--> 
+    <select id="getHonorStaticBySubj" resultType="com.hzsun.bigdata.sci.model.dto.HonorStaticDTO"> 
+        select 
+        s.subj_class_name as scienceName, 
+        s.unit_name as unitName, 
+        s.win_achv_name as awardName, 
+        s.win_achv_cls_name as winClass, 
+        s.awrd_lv_name as awardLevel, 
+        s.auther_name as authorName, 
+        s.charge_pnsl_rank as authorRank, 
+        s.unit_rank as unitRank, 
+        DATE_FORMAT(s.win_date,'%Y') as winYear 
+        from ${achvTableName} s 
+        where subj_class_code = #{subjNo} 
+        and DATE_FORMAT(s.win_date,'%Y') = #{year} 
+        <if test="honorType != '-1'"> 
+            and s.win_achv_cls_code=#{honorType} 
+        </if> 
+        order by s.win_achv_no asc 
+        LIMIT  ,      
+    </select> 
+ 
+    <!--学院 获奖统计明细(计数)--> 
+    <select id="getHonorStaticBySubjCount" resultType="java.lang.Integer"> 
+        select 
+        count(1) 
+        from ${achvTableName} s 
+        where subj_class_code = #{subjNo} 
+        and DATE_FORMAT(s.win_date,'%Y') = #{year} 
+        <if test="honorType != '-1'"> 
+            and s.win_achv_cls_code=#{honorType} 
+        </if> 
+    </select> 
+ 
+    <!--学科 投入产出总体概况--> 
+    <select id="getSubjInOutPut" resultType="com.hzsun.bigdata.sci.model.dto.SubjInOutPutDTO"> 
+        select 
+        subj_class_name as subjClassName, 
+        CONCAT(substr(DATA_MONTH,5,2),'月') as monthStr, 
+        sci_num as sciNum, 
+        gov_fund as govFund, 
+        other_fund as otherFund, 
+        tech_work_num as techWorkNum, 
+        fgn_paper_num as fgnPaperNum, 
+        domestic_paper_num as domesticPaperNum, 
+        win_achv_num as winAchvNum, 
+        patent_achv_num as patentAchvNum 
+        from tapp_sci_subj_input_output_stat_m 
+        where data_year = #{year} 
+        <if test="subjNo !=null and subjNo != '' "> 
+            and subj_class_code = #{subjNo} 
+        </if> 
+        and data_month in 
+        <foreach item="item" index="index" collection="monthList" open="(" separator="," close=")"> 
+            #{item} 
+        </foreach> 
+    </select> 
+ 
+    <!--学科 投入产出总体概况(计数)--> 
+    <select id="getSubjInOutPutCount" resultType="java.lang.Integer"> 
+        select 
+        count(1) 
+        from tapp_sci_subj_input_output_stat_m 
+        where data_year = #{year} 
+        <if test="subjNo !=null and subjNo != '' "> 
+            and subj_class_code = #{subjNo} 
+        </if> 
+        and data_month in 
+        <foreach item="item" index="index" collection="monthList" open="(" separator="," close=")"> 
+            #{item} 
+        </foreach> 
+    </select> 
+ 
+    <!--教职工成果产出信息--> 
+    <select id="getStaffOutPutInfo" resultType="com.hzsun.bigdata.sci.model.dto.StaffOutPutInfoDTO"> 
+        SELECT year_tech_work_num as techWorkNum, 
+                year_fgn_paper_num as fgnPaperNum, 
+                year_domestic_paper_num as domesticPaperNum, 
+                year_win_achv_num as winAchvNum, 
+                year_patent_num as patentAchvNum 
+        FROM ${staffOutTable} 
+        WHERE staff_no = #{staffNo} 
+        order by data_year desc 
+        LIMIT 0 ,   1   
+    </select> 
+ 
+    <!--教职工项目经费信息--> 
+    <select id="getItemFundList" resultType="com.hzsun.bigdata.sci.model.dto.StaffItemFundDTO"> 
+        SELECT item_no as itemNo, 
+                item_name as itemName, 
+                item_class_name as itemType, 
+                item_rank_name as itemRank, 
+                ROUND(plan_fund_total_fee/10000,2) as planFundTotalFee, 
+                ROUND(cur_arrive_fund/10000,2) as curArriveFund 
+        FROM ${staffItemFundTable} 
+        WHERE staff_no = #{staffNo} 
+    </select> 
+ 
+    <!--教职工项目来源经费信息--> 
+    <select id="getFundSrcList" resultType="com.hzsun.bigdata.sci.model.dto.StaffFundSrcDTO"> 
+        SELECT item_fund_src_name as itemFundSrcName, 
+                ROUND(appro_fee/10000,2) as approFee 
+        FROM ${staffFundSrcTable} 
+        WHERE staff_no = #{staffNo} 
+    </select> 
+</mapper> 
