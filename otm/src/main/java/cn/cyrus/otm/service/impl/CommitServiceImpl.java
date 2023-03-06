@@ -440,12 +440,14 @@ public class CommitServiceImpl implements CommitService {
 	public static void main(String[] args) {
 
 
+	
+		
+		// 1 单一文件
 		File sourceFile = new File("src/main/resources/in/SubjDevMapper.xml");
 		File sinkFile = new File("src/main/resources/out/SubjDevMapper.xml");
 		//modifySingleFile(sourceFile,sinkFile);
 
-
-		// content root / absolute path
+		// 2 目录遍历 content root / absolute path
 		File dir = new File("src/main/resources/mapper");
 		modifyDirFile(dir);
 
@@ -453,45 +455,27 @@ public class CommitServiceImpl implements CommitService {
 
 	}
 
-
+	
+	/*
+	 * REMARK  遍历目录  
+	 * @methodName   modifyDirFile
+	 * @return void
+	 * @date 2023/3/6 11:22
+	 * @author cyf
+	 */
 	private static void modifyDirFile(File dir){
 		File[] files = dir.listFiles();
-		BufferedReader br = null;
-		BufferedWriter bw = null;
-		String s;
 		try {
-
 			for (File file : files){
 				if (file.length() != 0){
 					System.out.println("file.getName() = " + file.getName());
-					br = new BufferedReader(new FileReader(file));
-					ArrayList<String> strings = new ArrayList<String>();
-					s=br.readLine();
-					while (s != null){
-						CommitService commitService = new CommitServiceImpl();
-						s = commitService.changeSql(s,0);
-						strings.add(s);//将数据存入集合
-					}
-					bw = new BufferedWriter(new FileWriter(file));
-					for (String string : strings) {
-						bw.write(string);//一行一行写入数据
-						bw.newLine();//换行
-					}
+					modifySingleFile(file,file);
 				}
 			}
 
 		}catch (Exception e) {
 			e.printStackTrace();
 			log.error("文件夹路径有误");
-		}finally {
-			if (br != null && bw != null){
-				try {
-					br.close();
-					bw.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
 		}
 
 
