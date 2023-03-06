@@ -454,8 +454,8 @@ public class CommitServiceImpl implements CommitService {
 
 
 		try {
-            File sourceFile = new File("src/main/resources/in/PersonnelMapper.xml");
-            File sinkFile = new File("src/main/resources/out/PersonnelMapper.xml");
+            File sourceFile = new File("src/main/resources/in/SubjDevMapper.xml");
+            File sinkFile = new File("src/main/resources/out/SubjDevMapper.xml");
             BufferedReader br = new BufferedReader(new FileReader(sourceFile));
             ArrayList<String> strings = new ArrayList<String>();
             String s;//读取的每一行数据
